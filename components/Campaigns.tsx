@@ -8,7 +8,7 @@ export default function Campaigns() {
   const campaigns = [
     {
       image:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/473227783_122095731974729718_7799801113706853113_n.jpg-7Qr8uUJdJVfBIscWlnkzj00SA68cOB.jpeg",
+        "/campaign1/camp1.jpeg",
       title: "Boi Bondhu: Empowering Through Education",
       description:
         "Free coaching center for primary school students from Lodha and Shabar communities in Nayagram, Medinipur.",
@@ -17,13 +17,22 @@ export default function Campaigns() {
       slug: "boi-bondhu",
     },
     {
-      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-yEgJV5mFSHuHQjLokc55upWlxrb9Zq.png",
+      image: "/campaign2/camp1.png",
       title: "Light for Education",
       description:
         "Supporting meritorious students in Hingalganj with solar emergency lights for uninterrupted education.",
       location: "Hingalganj, Boltola",
       status: "Active",
       slug: "light-for-education",
+    },
+    {
+      image: "/campaign3/camp1.jpeg",
+      title: "Flood Relief 2024",
+      description:
+        "Emergency relief support for communities affected by the 2024 West Bengal floods in southern regions.",
+      location: "South Bengal",
+      status: "Completed",
+      slug: "flood-relief-2024",
     },
   ]
 

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Menu, X, Facebook, Linkedin } from "lucide-react"
+import { Menu, X, Facebook, Linkedin, Instagram } from "lucide-react"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -33,6 +33,7 @@ export default function Navbar() {
               <NavLink href="/about">About Us</NavLink>
               <NavLink href="/campaigns">Campaigns</NavLink>
               <NavLink href="/donate">Donate</NavLink>
+              <NavLink href="/join">Join Now</NavLink>
               <NavLink href="/contact">Contact</NavLink>
             </div>
             <div className="flex items-center space-x-4 border-l pl-6">
@@ -51,6 +52,14 @@ export default function Navbar() {
                 className="text-gray-600 hover:text-primary transition-colors"
               >
                 <Linkedin className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/rgbwelfarefoundation"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-primary transition-colors"
+              >
+                <Instagram className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -97,6 +106,14 @@ export default function Navbar() {
                 className="text-gray-600 hover:text-primary transition-colors"
               >
                 <Linkedin className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/rgbwelfarefoundation"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-primary transition-colors"
+              >
+                <Instagram className="w-5 h-5" />
               </a>
             </div>
           </motion.div>

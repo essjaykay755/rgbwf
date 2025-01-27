@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import Link from "next/link"
 
 export default function Community() {
   return (
@@ -14,7 +15,9 @@ export default function Community() {
 
         <p className="text-xl text-muted-foreground mb-8">Be part of our growing family of supporters and volunteers</p>
 
-        <button className="bg-primary text-white px-8 py-3 rounded-full">Join Our Community</button>
+        <Link href="/join" className="bg-primary text-white px-8 py-3 rounded-full">
+          Join Our Community
+        </Link>
 
         <div className="mt-12 relative">
           <div className="absolute inset-0 overflow-hidden">

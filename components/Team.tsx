@@ -18,7 +18,7 @@ export default function Team() {
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-01-26%20at%202.28.50%20PM-pQQ1HI57bviq69lAq8Jx3j6anMzuvG.jpeg",
     },
     {
-      name: "Dr. Ramendralal Mukherjee",
+      name: "Dr. Ramendra Lal Mukherjee",
       role: "Designated Scientist and Advisor",
       image:
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/4b8748fa-8bdd-42e2-8bd2-098c8920d92f.jpg-tMN3KuaG5qg3IVEPfGLd36fXuSRPcQ.jpeg",

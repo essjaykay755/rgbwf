@@ -8,9 +8,9 @@ export default function Features() {
     <section className="bg-accent/20 py-16">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12">
-          Making a Difference
+          Empowering Communities
           <br />
-          One Step at a Time
+          Through Sustainable Change
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

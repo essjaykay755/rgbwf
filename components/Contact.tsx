@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { MapPin, Phone, Mail, Clock } from "lucide-react"
+import { MapPin, Phone, Mail, Clock, Facebook, Linkedin, Instagram } from "lucide-react"
 
 export default function Contact() {
   return (
@@ -25,11 +25,11 @@ export default function Contact() {
               <div>
                 <h3 className="font-semibold mb-1">Address</h3>
                 <p className="text-gray-600">
-                  P-348, basunagar gate no 1,
+                  P-348, Basunagar Gate No 1,
                   <br />
-                  Madhyamgram, Kolkata,
+                  Madhyamgram, Kolkata 700129,
                   <br />
-                  India, West Bengal
+                  India
                 </p>
               </div>
             </div>
@@ -118,6 +118,35 @@ export default function Contact() {
                 Send Message
               </button>
             </form>
+            <div className="mt-8 text-center">
+              <h3 className="text-xl font-semibold mb-4">Follow Us</h3>
+              <div className="flex justify-center space-x-6">
+                <a
+                  href="https://www.facebook.com/profile.php?id=61571891546414"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-primary transition-colors"
+                >
+                  <Facebook className="w-6 h-6" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/rgb-welfare-foundation-315696346"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-primary transition-colors"
+                >
+                  <Linkedin className="w-6 h-6" />
+                </a>
+                <a
+                  href="https://www.instagram.com/rgbwelfarefoundation"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-primary transition-colors"
+                >
+                  <Instagram className="w-6 h-6" />
+                </a>
+              </div>
+            </div>
           </motion.div>
         </div>
 

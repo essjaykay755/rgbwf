@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Facebook, Linkedin, Mail, Phone, MapPin } from "lucide-react"
+import { Facebook, Linkedin, Mail, Phone, MapPin, Instagram } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -70,7 +70,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                <span>P-348, basunagar gate no 1, Madhyamgram, Kolkata, India</span>
+                <span>P-348, Basunagar Gate No 1, Madhyamgram, Kolkata 700129, India</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4" />
@@ -104,6 +104,14 @@ export default function Footer() {
               className="hover:text-secondary transition-colors"
             >
               <Linkedin className="w-5 h-5" />
+            </a>
+            <a
+              href="https://www.instagram.com/rgbwelfarefoundation"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-secondary transition-colors"
+            >
+              <Instagram className="w-5 h-5" />
             </a>
           </div>
         </div>
