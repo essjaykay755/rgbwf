@@ -10,6 +10,21 @@ export const metadata: Metadata = {
   title: "RGB Welfare Foundation - Empowering Communities Across India",
   description:
     "RGB Welfare Foundation works across Pan India, empowering women and supporting the development of underprivileged children from rural, urban, and tribal communities.",
+  icons: {
+    icon: [
+      {
+        url: '/logoonly.svg',
+        type: 'image/svg+xml',
+      }
+    ],
+    shortcut: ['/logoonly.svg'],
+    apple: [
+      {
+        url: '/logoonly.svg',
+        type: 'image/svg+xml',
+      }
+    ],
+  },
 }
 
 export default function RootLayout({
