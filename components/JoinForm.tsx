@@ -1,10 +1,88 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 
 export default function JoinForm() {
-  const [hasSocialWorkExperience, setHasSocialWorkExperience] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
+  const [formData, setFormData] = useState({
+    name: "",
+    occupation: "",
+    dob: "",
+    phone: "",
+    email: "",
+    hasSocialWorkExperience: "",
+    whyJoin: "",
+    howKnow: ""
+  })
+
+  // Only reset alerts when user starts typing again
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (success || error) {
+        setSuccess(false)
+        setError("")
+      }
+    }, 5000) // Hide alerts after 5 seconds
+
+    return () => clearTimeout(timer)
+  }, [success, error])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError("")
+    setSuccess(false)
+
+    try {
+      const response = await fetch("/api/join", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to submit application")
+      }
+
+      setSuccess(true)
+      setFormData({
+        name: "",
+        occupation: "",
+        dob: "",
+        phone: "",
+        email: "",
+        hasSocialWorkExperience: "",
+        whyJoin: "",
+        howKnow: ""
+      })
+      formRef.current?.reset()
+
+      // Scroll to the alert
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to submit application")
+      // Scroll to the error
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -13,7 +91,35 @@ export default function JoinForm() {
           <h1 className="text-4xl font-bold mb-8 text-center">Join Our Community</h1>
 
           <div className="bg-white rounded-xl shadow-lg p-8">
-            <form className="space-y-6">
+            {/* Success Alert */}
+            {success && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-md flex items-center"
+              >
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Application submitted successfully! We'll get back to you soon.
+              </motion.div>
+            )}
+
+            {/* Error Alert */}
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md flex items-center"
+              >
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                {error}
+              </motion.div>
+            )}
+
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                   Name *
@@ -21,6 +127,9 @@ export default function JoinForm() {
                 <input
                   type="text"
                   id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
                 />
@@ -33,6 +142,9 @@ export default function JoinForm() {
                 <input
                   type="text"
                   id="occupation"
+                  name="occupation"
+                  value={formData.occupation}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
                 />
@@ -45,6 +157,9 @@ export default function JoinForm() {
                 <input
                   type="date"
                   id="dob"
+                  name="dob"
+                  value={formData.dob}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
                 />
@@ -57,6 +172,9 @@ export default function JoinForm() {
                 <input
                   type="tel"
                   id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
                 />
@@ -69,6 +187,9 @@ export default function JoinForm() {
                 <input
                   type="email"
                   id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
                 />
@@ -82,20 +203,24 @@ export default function JoinForm() {
                   <label className="inline-flex items-center">
                     <input
                       type="radio"
-                      name="experience"
+                      name="hasSocialWorkExperience"
                       value="yes"
-                      onChange={(e) => setHasSocialWorkExperience(e.target.value)}
+                      checked={formData.hasSocialWorkExperience === "yes"}
+                      onChange={handleChange}
                       className="form-radio text-primary"
+                      required
                     />
                     <span className="ml-2">Yes</span>
                   </label>
                   <label className="inline-flex items-center">
                     <input
                       type="radio"
-                      name="experience"
+                      name="hasSocialWorkExperience"
                       value="no"
-                      onChange={(e) => setHasSocialWorkExperience(e.target.value)}
+                      checked={formData.hasSocialWorkExperience === "no"}
+                      onChange={handleChange}
                       className="form-radio text-primary"
+                      required
                     />
                     <span className="ml-2">No</span>
                   </label>
@@ -103,11 +228,14 @@ export default function JoinForm() {
               </div>
 
               <div>
-                <label htmlFor="why-join" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="whyJoin" className="block text-sm font-medium text-gray-700 mb-1">
                   Why do you want to join RGB Welfare Foundation? *
                 </label>
                 <textarea
-                  id="why-join"
+                  id="whyJoin"
+                  name="whyJoin"
+                  value={formData.whyJoin}
+                  onChange={handleChange}
                   required
                   rows={4}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
@@ -115,11 +243,14 @@ export default function JoinForm() {
               </div>
 
               <div>
-                <label htmlFor="how-know" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="howKnow" className="block text-sm font-medium text-gray-700 mb-1">
                   How did you hear about us? *
                 </label>
                 <textarea
-                  id="how-know"
+                  id="howKnow"
+                  name="howKnow"
+                  value={formData.howKnow}
+                  onChange={handleChange}
                   required
                   rows={4}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
@@ -128,9 +259,10 @@ export default function JoinForm() {
 
               <button
                 type="submit"
-                className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90 transition-colors"
+                disabled={isLoading}
+                className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit Application
+                {isLoading ? "Submitting..." : "Submit Application"}
               </button>
             </form>
           </div>
