@@ -15,6 +15,20 @@ if (!apiKey) {
 contactsApi.setApiKey(SibApiV3Sdk.ContactsApiApiKeys.apiKey, apiKey)
 emailApi.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, apiKey)
 
+// Function to format date in IST
+function getISTDateTime() {
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  }
+  return new Date().toLocaleString('en-IN', options)
+}
+
 export async function POST(request: Request) {
   console.log("Join API route handler started")
   
@@ -32,6 +46,14 @@ export async function POST(request: Request) {
       whyJoin,
       howKnow,
     } = data
+
+    // Format DOB in Indian format
+    const formattedDOB = new Date(dob).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'Asia/Kolkata'
+    })
 
     // Validate required fields
     const missingFields = []
@@ -64,7 +86,7 @@ export async function POST(request: Request) {
         <li><strong>Name:</strong> ${name}</li>
         <li><strong>Email:</strong> ${email}</li>
         <li><strong>Phone:</strong> ${phone}</li>
-        <li><strong>Date of Birth:</strong> ${dob}</li>
+        <li><strong>Date of Birth:</strong> ${formattedDOB}</li>
         <li><strong>Occupation:</strong> ${occupation}</li>
       </ul>
       
@@ -77,7 +99,7 @@ export async function POST(request: Request) {
         <p style="white-space: pre-wrap;">${howKnow}</p>
       </ul>
       
-      <p><strong>Submission Time:</strong> ${new Date().toLocaleString()}</p>
+      <p><strong>Submission Time:</strong> ${getISTDateTime()} (IST)</p>
     `
     sendSmtpEmail.sender = { email: "team@rgbwf.org", name: "RGB Website Volunteer Applications" }
     sendSmtpEmail.replyTo = { email: "rgbwfoundation@gmail.com", name: "RGB Welfare Foundation" }
@@ -94,6 +116,10 @@ export async function POST(request: Request) {
       )
     }
 
+    // Get current time in IST for Brevo attributes
+    const now = new Date()
+    const istTime = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+
     // Create contact with form data
     const createContact = new SibApiV3Sdk.CreateContact()
     createContact.email = email
@@ -103,7 +129,7 @@ export async function POST(request: Request) {
       LASTNAME: name.split(" ").slice(1).join(" ") || "-",
       FULLNAME: name,
       OCCUPATION: occupation,
-      DATE_OF_BIRTH: dob,
+      DATE_OF_BIRTH: formattedDOB,
       PHONE: phone,
       
       // Volunteer Information
@@ -113,11 +139,11 @@ export async function POST(request: Request) {
       
       // Application Details
       APPLICATION_STATUS: "PENDING",
-      APPLICATION_DATE: new Date().toISOString(),
+      APPLICATION_DATE: istTime,
       
       // Metadata
       FORM_TYPE: "volunteer_application",
-      SUBMISSION_DATE: new Date().toISOString(),
+      SUBMISSION_DATE: istTime,
       SUBMISSION_SOURCE: "website_volunteer_form",
       
       // For filtering/segmentation
