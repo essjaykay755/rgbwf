@@ -13,6 +13,20 @@ if (!apiKey) {
 contactsApi.setApiKey(SibApiV3Sdk.ContactsApiApiKeys.apiKey, apiKey || "")
 emailApi.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, apiKey || "")
 
+// Function to format date in IST
+function getISTDateTime() {
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  }
+  return new Date().toLocaleString('en-IN', options)
+}
+
 export async function POST(request: Request) {
   console.log("Contact API route handler started")
   
@@ -31,6 +45,9 @@ export async function POST(request: Request) {
       )
     }
 
+    // Get current time in IST
+    const istTime = getISTDateTime()
+
     // Send email notification first
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail()
     sendSmtpEmail.to = [{ email: "rgbwfoundation@gmail.com", name: "RGB Welfare Foundation" }]
@@ -42,7 +59,7 @@ export async function POST(request: Request) {
       <p><strong>Subject:</strong> ${subject}</p>
       <p><strong>Message:</strong></p>
       <p style="white-space: pre-wrap;">${message}</p>
-      <p><strong>Submission Time:</strong> ${new Date().toLocaleString()}</p>
+      <p><strong>Submission Time:</strong> ${istTime} (IST)</p>
     `
     sendSmtpEmail.sender = { email: "team@rgbwf.org", name: "RGB Website Contact Form" }
 
@@ -58,7 +75,7 @@ export async function POST(request: Request) {
       FULLNAME: name,
       LAST_MESSAGE: message,
       LAST_SUBJECT: subject,
-      LAST_CONTACT_DATE: new Date().toISOString(),
+      LAST_CONTACT_DATE: istTime,
       FORM_TYPE: "contact",
       SUBMISSION_SOURCE: "website_contact_form"
     }
@@ -72,7 +89,7 @@ export async function POST(request: Request) {
         updateContact.attributes = {
           LAST_MESSAGE: message,
           LAST_SUBJECT: subject,
-          LAST_CONTACT_DATE: new Date().toISOString()
+          LAST_CONTACT_DATE: istTime
         }
         await contactsApi.updateContact(email, updateContact)
       }
