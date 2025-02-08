@@ -7,6 +7,24 @@ import { MapPin } from "lucide-react"
 export default function Campaigns() {
   const campaigns = [
     {
+      image: "/campaign5/campaign1.jpg",
+      title: "Pranbindu",
+      description:
+        "Working with 100 schools and 2 million students across Bengal to raise awareness about blood donation, blood group testing, and preventing bloodborne infections.",
+      location: "West Bengal",
+      status: "Active",
+      slug: "pranbindu",
+    },
+    {
+      image: "/campaign4/campaign1.jpg",
+      title: "Amar Meye Durga",
+      description:
+        "Training 50,000 girls across Bengal in self-defense, empowering them with crucial skills for their safety and confidence, regardless of their background.",
+      location: "West Bengal",
+      status: "Active",
+      slug: "amar-meye-durga",
+    },
+    {
       image:
         "/campaign1/camp1.jpeg",
       title: "Boi Bondhu: Empowering Through Education",
