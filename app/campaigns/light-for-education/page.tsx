@@ -11,8 +11,6 @@ export default function LightForEducationPage() {
     "/campaign2/camp2.png",
     "/campaign2/camp3.png",
     "/campaign2/camp4.png",
-    "/campaign2/campaign3.png",
-    "/campaign2/campaign4.png"
   ]
 
   return (

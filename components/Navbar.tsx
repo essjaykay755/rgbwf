@@ -10,26 +10,27 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/20">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center shrink-0">
+          <Link href="/" className="flex items-center shrink-0 group">
             <Image
               src="/logoonly.svg"
               alt="RGB Welfare Foundation"
               width={40}
               height={40}
-              className="h-10 w-auto"
+              className="h-10 w-auto transition-transform duration-300 group-hover:scale-105"
             />
             <span className="ml-3 text-xl font-semibold whitespace-nowrap">
-              RGB Welfare Foundation
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">RGB</span>{" "}
+              <span className="text-gray-600">Welfare Foundation</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-6">
-            <div className="flex items-center space-x-6">
+          <div className="hidden lg:flex items-center gap-8">
+            <div className="flex items-center gap-8">
               <NavLink href="/">Home</NavLink>
               <NavLink href="/about">About Us</NavLink>
               <NavLink href="/campaigns">Campaigns</NavLink>
@@ -38,14 +39,17 @@ export default function Navbar() {
             </div>
             <Link 
               href="/join" 
-              className="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary/90 transition-colors shrink-0"
+              className="bg-primary text-white px-6 py-2.5 rounded-full hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 active:scale-95"
             >
               Join Now
             </Link>
           </div>
 
           {/* Mobile Menu Button */}
-          <button className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
+          <button 
+            className="lg:hidden p-2 rounded-full hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(!isOpen)}
+          >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
@@ -53,11 +57,13 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {isOpen && (
           <motion.div 
-            initial={{ opacity: 0, y: -10 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            className="lg:hidden pb-6"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="lg:hidden overflow-hidden"
           >
-            <div className="flex flex-col space-y-3">
+            <div className="py-4 space-y-3">
               <MobileNavLink href="/" onClick={() => setIsOpen(false)}>
                 Home
               </MobileNavLink>
@@ -77,18 +83,18 @@ export default function Navbar() {
                 <Link 
                   href="/join" 
                   onClick={() => setIsOpen(false)}
-                  className="inline-block bg-primary text-white px-6 py-2 rounded-full hover:bg-primary/90 transition-colors"
+                  className="inline-block w-full text-center bg-primary text-white px-6 py-2.5 rounded-full hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 active:scale-95"
                 >
                   Join Now
                 </Link>
               </div>
             </div>
-            <div className="flex items-center space-x-4 pt-4 border-t mt-4">
+            <div className="flex items-center gap-6 py-4 border-t border-gray-200/50">
               <a
                 href="https://www.facebook.com/profile.php?id=61571891546414"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 hover:text-primary transition-colors"
+                className="text-gray-600 hover:text-primary transition-all duration-300 hover:scale-110"
               >
                 <Facebook className="w-5 h-5" />
               </a>
@@ -96,7 +102,7 @@ export default function Navbar() {
                 href="https://www.linkedin.com/in/rgb-welfare-foundation-315696346"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 hover:text-primary transition-colors"
+                className="text-gray-600 hover:text-primary transition-all duration-300 hover:scale-110"
               >
                 <Linkedin className="w-5 h-5" />
               </a>
@@ -104,7 +110,7 @@ export default function Navbar() {
                 href="https://www.instagram.com/rgbwelfarefoundation"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 hover:text-primary transition-colors"
+                className="text-gray-600 hover:text-primary transition-all duration-300 hover:scale-110"
               >
                 <Instagram className="w-5 h-5" />
               </a>
@@ -118,8 +124,12 @@ export default function Navbar() {
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="text-gray-600 hover:text-primary transition-colors whitespace-nowrap">
+    <Link 
+      href={href} 
+      className="relative text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap group"
+    >
       {children}
+      <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
     </Link>
   )
 }
@@ -137,7 +147,7 @@ function MobileNavLink({
     <Link 
       href={href} 
       onClick={onClick} 
-      className="text-gray-600 hover:text-primary transition-colors block px-2 py-1"
+      className="block px-2 py-1.5 text-gray-600 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-100/80"
     >
       {children}
     </Link>

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, HelpCircle } from "lucide-react"
 
 export default function FAQ() {
   const faqs = [
@@ -33,28 +33,59 @@ export default function FAQ() {
   ]
 
   return (
-    <section className="container mx-auto px-4 py-16">
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12">Frequently asked questions</h2>
+    <section className="bg-white py-24">
+      <div className="container mx-auto px-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto text-center mb-16"
+        >
+          <div className="inline-flex items-center justify-center gap-2 mb-4">
+            <HelpCircle className="w-8 h-8 text-primary" />
+            <h2 className="text-4xl font-bold">FAQ</h2>
+          </div>
+          <p className="text-gray-600">
+            Find answers to commonly asked questions about donations and our work
+          </p>
+        </motion.div>
 
-        <div className="space-y-4">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto divide-y divide-gray-200"
+        >
           {faqs.map((faq, index) => (
-            <FAQItem key={index} question={faq.question} answer={faq.answer} />
+            <FAQItem key={index} question={faq.question} answer={faq.answer} index={index} />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )
 }
 
-function FAQItem({ question, answer }: { question: string; answer: string }) {
+function FAQItem({ question, answer, index }: { question: string; answer: string; index: number }) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <motion.div initial={false} className="border-b border-gray-200">
-      <button onClick={() => setIsOpen(!isOpen)} className="flex justify-between items-center w-full py-4 text-left">
-        <span className="font-medium">{question}</span>
-        <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? "transform rotate-180" : ""}`} />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1 }}
+      className="group"
+    >
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex justify-between items-center w-full py-6 text-left group-hover:text-primary transition-colors"
+      >
+        <span className="font-medium pr-8">{question}</span>
+        <ChevronDown
+          className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${
+            isOpen ? "transform rotate-180" : ""
+          }`}
+        />
       </button>
       <AnimatePresence initial={false}>
         {isOpen && (
@@ -65,7 +96,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <p className="pb-4 text-muted-foreground">{answer}</p>
+            <div className="pb-6 text-gray-600 leading-relaxed">{answer}</div>
           </motion.div>
         )}
       </AnimatePresence>
