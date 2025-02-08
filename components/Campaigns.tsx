@@ -55,14 +55,22 @@ export default function Campaigns() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Our Campaigns</h1>
-          <p className="text-lg text-gray-600">Making a difference in communities across India</p>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <div className="container mx-auto px-4 py-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          className="text-center mb-16"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-primary">
+            Our Campaigns
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Making a difference in communities across India through targeted initiatives and sustainable development programs
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto">
           {campaigns.map((campaign) => (
             <CampaignCard key={campaign.slug} {...campaign} />
           ))}
@@ -88,23 +96,33 @@ function CampaignCard({
   slug: string
 }) {
   return (
-    <motion.div whileHover={{ y: -5 }} className="bg-white rounded-xl overflow-hidden shadow-lg">
-      <div className="relative h-48">
+    <motion.div 
+      whileHover={{ y: -5, boxShadow: "0 10px 40px -15px rgba(0,0,0,0.1)" }} 
+      transition={{ duration: 0.2 }}
+      className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:border-primary/20 transition-colors"
+    >
+      <div className="relative h-56 md:h-64">
         <img src={image || "/placeholder.svg"} alt={title} className="w-full h-full object-cover" />
         <div className="absolute top-4 right-4">
-          <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm">{status}</span>
+          <span className={`px-4 py-1.5 rounded-full text-sm font-medium ${
+            status === "Active" 
+              ? "bg-green-500/90 text-white" 
+              : "bg-gray-500/90 text-white"
+          }`}>
+            {status}
+          </span>
         </div>
       </div>
-      <div className="p-6">
-        <h3 className="text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-gray-600 mb-4">{description}</p>
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-          <MapPin className="w-4 h-4" />
+      <div className="p-8">
+        <h3 className="text-2xl font-bold mb-3 text-gray-900">{title}</h3>
+        <p className="text-gray-600 mb-6 line-clamp-3">{description}</p>
+        <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+          <MapPin className="w-4 h-4 text-primary" />
           <span>{location}</span>
         </div>
         <Link
           href={`/campaigns/${slug}`}
-          className="block w-full bg-primary text-white text-center py-2 rounded-full hover:bg-primary/90 transition-colors"
+          className="block w-full bg-primary text-white text-center py-3 rounded-xl hover:bg-primary/90 transition-all font-medium"
         >
           Learn More
         </Link>
