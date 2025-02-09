@@ -25,7 +25,7 @@ export default function BoiBondhuPage() {
         >
           <h1 className="text-4xl md:text-5xl font-bold mb-6">Boi Bondhu: Empowering Through Education</h1>
           <p className="text-xl text-gray-600 mb-8">
-            Supporting tribal students with free education and resources
+            Ensuring quality education for every child across India
           </p>
         </motion.div>
 
@@ -56,7 +56,7 @@ export default function BoiBondhuPage() {
             <div className="flex flex-wrap gap-6 mb-8 text-gray-600">
               <div className="flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-primary" />
-                <span>Nayagram, Medinipur</span>
+                <span>Pan India</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-primary" />
@@ -64,22 +64,22 @@ export default function BoiBondhuPage() {
               </div>
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" />
-                <span>Lodha & Shabar Communities</span>
+                <span>500+ Students</span>
               </div>
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-primary" />
-                <span>Primary Education</span>
+                <School className="w-5 h-5 text-primary" />
+                <span>10+ Communities</span>
               </div>
             </div>
 
             <div className="prose prose-lg max-w-none">
               <p className="mb-6">
-                The Boi Bondhu initiative focuses on providing free education to primary school students from the Lodha and Shabar tribal communities in Nayagram, Medinipur. Our goal is to ensure that every child has access to quality education, regardless of their socio-economic background.
+                The Boi Bondhu initiative provides free education to primary school students from underprivileged communities across India. Our goal is to ensure that every child, regardless of their socio-economic background, has access to quality education.
               </p>
 
               <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
               <p className="mb-6">
-                We aim to bridge the educational gap in tribal communities by providing free coaching, study materials, and support to help students excel in their academic pursuits. Through education, we empower these young minds to build a better future for themselves and their communities.
+                We aim to bridge the educational gap in underprivileged communities by providing free coaching, study materials, and support to help students excel in their academic pursuits. Through education, we empower these young minds to build a better future for themselves and their communities.
               </p>
 
               <h3 className="text-2xl font-bold mb-4">Project Focus Areas</h3>
@@ -88,17 +88,17 @@ export default function BoiBondhuPage() {
                 <li>Distribution of educational materials</li>
                 <li>Regular academic support and mentoring</li>
                 <li>Parent counseling and engagement</li>
-                <li>Cultural sensitivity in education</li>
+                <li>Digital literacy programs</li>
                 <li>Holistic development activities</li>
               </ul>
 
               <h3 className="text-2xl font-bold mb-4">Project Impact</h3>
               <ul className="list-disc pl-6 mb-6">
+                <li>500+ students benefited across India</li>
+                <li>Present in 10+ communities</li>
                 <li>Improved academic performance</li>
-                <li>Increased school attendance</li>
-                <li>Enhanced community participation</li>
-                <li>Better parent-teacher engagement</li>
-                <li>Preservation of tribal culture</li>
+                <li>Enhanced parent-teacher engagement</li>
+                <li>Digital education integration</li>
                 <li>Reduced dropout rates</li>
               </ul>
 

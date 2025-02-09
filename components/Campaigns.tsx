@@ -50,13 +50,13 @@ export default function Campaigns() {
         "/campaign1/camp1.jpeg",
       title: "Boi Bondhu: Empowering Through Education",
       description:
-        "Free coaching center for primary school students from Lodha and Shabar communities in Nayagram, Medinipur.",
-      location: "Nayagram, Medinipur",
+        "The Boi Bondhu initiative provides free education to primary school students from underprivileged communities across India. Our goal is to ensure that every child, regardless of their socio-economic background, has access to quality education.",
+      location: "Pan India",
       status: "Active",
       slug: "boi-bondhu",
       metrics: {
-        students: "100+",
-        communities: "2"
+        students: "500+",
+        communities: "10+"
       }
     },
     {

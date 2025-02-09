@@ -58,7 +58,7 @@ export default function Hero() {
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight">
                 Creating
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/80 to-primary/60">
+                <span className="text-primary">
                   Lasting Impact
                 </span>
               </h1>
