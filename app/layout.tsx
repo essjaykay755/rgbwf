@@ -28,7 +28,17 @@ export const metadata: Metadata = {
   verification: {
     google: "ur8m53OSLVosH4gKxqsweh5kxGi9M2rYFWCYd1BlF7w",
   },
-  metadataBase: new URL('https://rgbwf.org')
+  metadataBase: new URL('https://rgbwf.org'),
+  alternates: {
+    preload: [
+      {
+        href: '/hero.jpeg',
+        as: 'image',
+        type: 'image/jpeg',
+        imageSrcSet: '/hero.jpeg'
+      }
+    ]
+  }
 }
 
 export default function RootLayout({

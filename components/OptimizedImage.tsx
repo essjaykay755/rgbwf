@@ -41,11 +41,18 @@ export default function OptimizedImage({
         fill
         sizes={imageSizes[aspectRatio]}
         quality={isHero ? 85 : 75}
-        className="object-cover"
+        className={`object-cover ${isHero ? 'will-change-transform' : ''}`}
         loading={priority || isHero ? "eager" : "lazy"}
         priority={priority || isHero}
         fetchPriority={isHero ? "high" : undefined}
         decoding={isHero ? "sync" : "async"}
+        placeholder={isHero ? "blur" : undefined}
+        blurDataURL={isHero ? "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy0vLi44QjxAOEA4Qi5AOTc5PkVFPkdEREdHREdHR0f/2wBDAR" : undefined}
+        style={{
+          ...props.style,
+          transform: isHero ? 'translate3d(0, 0, 0)' : undefined,
+          backfaceVisibility: isHero ? 'hidden' : undefined,
+        }}
         {...props}
       />
     </div>
