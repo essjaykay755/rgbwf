@@ -10,7 +10,7 @@ export default function Team() {
       name: "Kabita Ghosal",
       role: "Founder - President",
       bio: "Leading with vision and compassion to create lasting positive change in communities.",
-      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-01-26%20at%201.24.08%20PM-hobA9TP9sC7ydrZIHg6bXcvWeBm5Al.jpeg",
+      image: "/team/kabita.jpeg",
       social: {
         linkedin: "https://www.linkedin.com/in/kabita-ghosal",
       }
@@ -19,7 +19,7 @@ export default function Team() {
       name: "SK Rajibul Islam",
       role: "Secretary - Programme Director",
       bio: "Orchestrating impactful programs that transform lives and build stronger communities.",
-      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-01-26%20at%202.28.50%20PM-pQQ1HI57bviq69lAq8Jx3j6anMzuvG.jpeg",
+      image: "/team/rajibul.jpeg",
       social: {
         linkedin: "https://www.linkedin.com/in/sk-rajibul-islam",
       }
@@ -28,7 +28,7 @@ export default function Team() {
       name: "Dr. Ramendra Lal Mukherjee",
       role: "Designated Scientist and Advisor",
       bio: "Bringing scientific expertise to drive innovative solutions for social welfare.",
-      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/4b8748fa-8bdd-42e2-8bd2-098c8920d92f.jpg-tMN3KuaG5qg3IVEPfGLd36fXuSRPcQ.jpeg",
+      image: "/team/ramendra.jpeg",
       social: {
         linkedin: "https://www.linkedin.com/in/dr-ramendra-lal-mukherjee",
       }
@@ -37,7 +37,7 @@ export default function Team() {
       name: "Subhojit Karmakar",
       role: "Director of IT Operations",
       bio: "Leveraging technology to amplify our social impact and reach.",
-      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-RgmTg4HBeA41xVkURZjhsmzTuJDB3x.webp",
+      image: "/team/subhojit.webp",
       social: {
         linkedin: "https://www.linkedin.com/in/subhojit-karmakar",
       }
@@ -46,9 +46,18 @@ export default function Team() {
       name: "Anirban Mandal",
       role: "Director and Treasurer",
       bio: "Ensuring financial transparency and sustainable growth of our initiatives.",
-      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bea4f1a9-5a08-42f2-903f-fe9cc934cfc1.jpg-YjlRPQ6W7hJGQnsyYP1t2lRgYfb524.jpeg",
+      image: "/team/anirban.jpg",
       social: {
         linkedin: "https://www.linkedin.com/in/anirban-mandal",
+      }
+    },
+    {
+      name: "Santajit Chatterjee",
+      role: "Director of Marketing and Communication",
+      bio: "Driving outreach and engagement to expand our impact across communities.",
+      image: "/team/santa.jpg",
+      social: {
+        linkedin: "https://www.linkedin.com/in/santajit-chatterjee",
       }
     },
   ]
