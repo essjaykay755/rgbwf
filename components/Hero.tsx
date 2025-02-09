@@ -6,131 +6,197 @@ import Image from "next/image"
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center">
-      {/* Background Image */}
+    <section className="relative min-h-screen flex items-center pb-16">
+      {/* Background Image Container */}
       <div className="absolute inset-0 z-0">
-        <Image
-          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-01-27%20at%2011.56.26%20PM%20(1)-9m0W9ABQ9Pwkcpi6uZb0DMLNPD4Y9P.jpeg"
-          alt="Children reading books"
-          fill
-          className="object-cover md:object-center object-[80%_center]"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-r md:from-black/50 md:via-black/30 md:to-transparent" />
-      </div>
-
-      <div className="container relative z-10 mx-auto px-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.8 }}
-          className="max-w-3xl mx-auto md:mx-0 pt-16 pb-48 sm:pb-56 md:py-20 lg:py-32"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="space-y-2 md:space-y-4 text-center md:text-left mb-6"
-          >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white">
-              Empowering
-            </h1>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/80">
-              Communities
-            </h1>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white">
-              Across India
-            </h1>
-          </motion.div>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-base sm:text-lg md:text-xl text-gray-100 mb-8 md:mb-12 leading-relaxed text-center md:text-left max-w-xl mx-auto md:mx-0"
-          >
-            Supporting underprivileged children and women through education, healthcare, and sustainable development
-          </motion.p>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start"
-          >
-            <Link
-              href="/donate"
-              className="bg-primary text-white px-6 py-3 rounded-xl text-base sm:text-lg font-medium hover:bg-primary/90 transition-all transform hover:scale-105 hover:shadow-lg text-center w-full sm:w-auto"
-            >
-              Donate Now
-            </Link>
-            <Link
-              href="/campaigns"
-              className="bg-white/10 backdrop-blur-sm text-white border border-white/20 px-6 py-3 rounded-xl text-base sm:text-lg font-medium hover:bg-white/20 transition-all transform hover:scale-105 text-center w-full sm:w-auto"
-            >
-              Our Campaigns
-            </Link>
-          </motion.div>
-        </motion.div>
-      </div>
-
-      {/* Stats Section */}
-      <div className="absolute bottom-0 left-0 right-0 bg-black/30 backdrop-blur-sm border-t border-white/10">
-        <div className="container mx-auto px-4 py-4 md:py-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-            <StatCard 
-              percentage="5000+" 
-              title="Lives Impacted" 
-              color="bg-white/5 hover:bg-white/10" 
-              textColor="text-white" 
-            />
-            <StatCard 
-              title="Women Empowerment" 
-              subtitle="Skills & Training" 
-              color="bg-white/5 hover:bg-white/10" 
-              textColor="text-white" 
-            />
-            <StatCard 
-              title="Child Development" 
-              subtitle="Education & Growth" 
-              color="bg-white/5 hover:bg-white/10" 
-              textColor="text-white" 
-            />
-            <StatCard 
-              title="Community Growth" 
-              subtitle="Pan India Impact" 
-              color="bg-white/5 hover:bg-white/10" 
-              textColor="text-white" 
-            />
-          </div>
+        {/* Main Image */}
+        <div className="relative h-full">
+          <Image
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-01-27%20at%2011.56.26%20PM%20(1)-9m0W9ABQ9Pwkcpi6uZb0DMLNPD4Y9P.jpeg"
+            alt="Smiling child reading"
+            fill
+            className="object-cover object-[80%_center] md:object-center"
+            priority
+          />
+          {/* Gradient Overlays */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent md:from-black/60 md:via-black/40 md:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent" />
         </div>
+        
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:14px_24px]" />
+      </div>
+
+      {/* Content Container with Dark Backdrop for Text */}
+      <div className="container relative z-10 mx-auto px-6">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Column - Content */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            transition={{ duration: 0.8 }}
+            className="text-white max-w-xl mx-auto lg:mx-0 text-center lg:text-left"
+          >
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full mb-8"
+            >
+              <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+              <span className="text-sm font-medium">Transforming Lives Since 2023</span>
+            </motion.div>
+
+            {/* Main Heading */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="space-y-4 mb-8"
+            >
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight">
+                Creating
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/80 to-primary/60">
+                  Lasting Impact
+                </span>
+              </h1>
+              <p className="text-xl text-gray-200 max-w-lg mx-auto lg:mx-0">
+                Empowering communities through education, healthcare, and sustainable development initiatives across India.
+              </p>
+            </motion.div>
+
+            {/* CTA Buttons */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+            >
+              <Link
+                href="/donate"
+                className="bg-primary text-white px-8 py-4 rounded-xl text-lg font-medium hover:bg-primary/90 transition-all transform hover:scale-105 hover:shadow-lg inline-flex items-center justify-center group"
+              >
+                Make a Difference
+                <motion.span
+                  initial={{ scale: 1 }}
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 2,
+                    times: [0, 0.5, 1]
+                  }}
+                  className="ml-2"
+                >
+                  ❤️
+                </motion.span>
+              </Link>
+              <Link
+                href="/campaigns"
+                className="bg-white/10 text-white border border-white/20 px-8 py-4 rounded-xl text-lg font-medium hover:bg-white/20 transition-all transform hover:scale-105 inline-flex items-center justify-center"
+              >
+                Explore Our Work
+              </Link>
+            </motion.div>
+
+            {/* Mobile Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+              className="mt-12 grid grid-cols-2 gap-4 lg:hidden"
+            >
+              <MobileStatsCard number="5000+" label="Lives Impacted" />
+              <MobileStatsCard number="100+" label="Schools Reached" />
+            </motion.div>
+          </motion.div>
+
+          {/* Right Column - Stats */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="hidden lg:block"
+          >
+            <div className="grid grid-cols-2 gap-6">
+              <StatsCard
+                number="5000+"
+                label="Lives Impacted"
+                description="Through our various initiatives"
+              />
+              <StatsCard
+                number="100+"
+                label="Schools Reached"
+                description="Across West Bengal"
+              />
+              <StatsCard
+                number="10+"
+                label="Active Campaigns"
+                description="Running successfully"
+              />
+              <StatsCard
+                number="1000+"
+                label="Volunteers"
+                description="Working together"
+              />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Bottom Wave */}
+      <div className="absolute -bottom-1 left-0 right-0">
+        <svg
+          viewBox="0 0 1440 120"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-auto"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 0L48 8.875C96 17.75 192 35.5 288 44.375C384 53.25 480 53.25 576 44.375C672 35.5 768 17.75 864 17.75C960 17.75 1056 35.5 1152 44.375C1248 53.25 1344 53.25 1392 53.25H1440V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0V0Z"
+            fill="white"
+          />
+        </svg>
       </div>
     </section>
   )
 }
 
-function StatCard({
-  percentage,
-  title,
-  subtitle,
-  color,
-  textColor,
+function StatsCard({
+  number,
+  label,
+  description
 }: {
-  percentage?: string
-  title: string
-  subtitle?: string
-  color: string
-  textColor: string
+  number: string
+  label: string
+  description: string
 }) {
   return (
-    <motion.div 
-      whileHover={{ scale: 1.02 }} 
-      className={`${color} rounded-xl p-3 md:p-4 border border-white/10 backdrop-blur-sm transition-all`}
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10"
     >
-      {percentage && <div className={`text-xl md:text-2xl font-bold mb-0.5 md:mb-1 ${textColor}`}>{percentage}</div>}
-      <h3 className={`text-sm md:text-base font-semibold ${textColor} line-clamp-1`}>{title}</h3>
-      {subtitle && <p className={`text-xs md:text-sm ${textColor} opacity-70 line-clamp-1 mt-0.5`}>{subtitle}</p>}
+      <h3 className="text-3xl font-bold text-white mb-2">{number}</h3>
+      <p className="text-lg font-medium text-white mb-1">{label}</p>
+      <p className="text-sm text-gray-300">{description}</p>
     </motion.div>
+  )
+}
+
+function MobileStatsCard({
+  number,
+  label
+}: {
+  number: string
+  label: string
+}) {
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 text-center">
+      <h3 className="text-2xl font-bold text-white mb-1">{number}</h3>
+      <p className="text-sm font-medium text-gray-200">{label}</p>
+    </div>
   )
 }
 

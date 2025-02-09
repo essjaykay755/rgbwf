@@ -7,6 +7,19 @@ import { MapPin, Users, Calendar, ArrowRight, Target } from "lucide-react"
 export default function Campaigns() {
   const campaigns = [
     {
+      image: "/campaign6/campaign1.jpg",
+      title: "Rural to Global Bridge",
+      description:
+        "Empowering tribal women through skill-based training and job opportunities, enabling them to earn a livelihood and support their families. Our initiative focuses on increasing per capita income and improving living standards.",
+      location: "Tribal Communities",
+      status: "Active",
+      slug: "rural-to-global-bridge",
+      metrics: {
+        focus: "Women",
+        impact: "Families"
+      }
+    },
+    {
       image: "/campaign5/campaign1.jpg",
       title: "Pranbindu",
       description:
