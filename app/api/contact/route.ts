@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import * as SibApiV3Sdk from "@sendinblue/client"
+import { verifyTurnstileToken } from "@/utils/turnstile"
 
 // Initialize both Contacts and Email APIs
 const contactsApi = new SibApiV3Sdk.ContactsApi()
@@ -34,13 +35,23 @@ export async function POST(request: Request) {
     const data = await request.json()
     console.log("Received data:", data)
 
-    const { name, email, subject, message } = data
+    const { name, email, subject, message, turnstileToken } = data
 
     // Validate required fields
-    if (!name || !email || !subject || !message) {
-      console.error("Missing required fields:", { name, email, subject, message })
+    if (!name || !email || !subject || !message || !turnstileToken) {
+      console.error("Missing required fields:", { name, email, subject, message, turnstileToken })
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      )
+    }
+
+    // Verify Turnstile token
+    const isTokenValid = await verifyTurnstileToken(turnstileToken)
+    if (!isTokenValid) {
+      console.error("Invalid Turnstile token")
+      return NextResponse.json(
+        { error: "Invalid captcha token" },
         { status: 400 }
       )
     }

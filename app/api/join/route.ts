@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import * as SibApiV3Sdk from "@sendinblue/client"
+import { verifyTurnstileToken } from "@/utils/turnstile"
 
 // Initialize both Contacts and Email APIs
 const contactsApi = new SibApiV3Sdk.ContactsApi()
@@ -45,6 +46,7 @@ export async function POST(request: Request) {
       hasSocialWorkExperience,
       whyJoin,
       howKnow,
+      turnstileToken
     } = data
 
     // Format DOB in Indian format
@@ -65,12 +67,23 @@ export async function POST(request: Request) {
     if (!hasSocialWorkExperience) missingFields.push("social work experience")
     if (!whyJoin) missingFields.push("why you want to join")
     if (!howKnow) missingFields.push("how you heard about us")
+    if (!turnstileToken) missingFields.push("captcha verification")
 
     if (missingFields.length > 0) {
       const errorMessage = `Missing required fields: ${missingFields.join(", ")}`
       console.error(errorMessage)
       return NextResponse.json(
         { error: errorMessage },
+        { status: 400 }
+      )
+    }
+
+    // Verify Turnstile token
+    const isTokenValid = await verifyTurnstileToken(turnstileToken)
+    if (!isTokenValid) {
+      console.error("Invalid Turnstile token")
+      return NextResponse.json(
+        { error: "Invalid captcha token" },
         { status: 400 }
       )
     }

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { useState, useRef, useEffect } from "react"
 import { Heart, Users, Target, ArrowRight, CheckCircle2 } from "lucide-react"
+import Turnstile from "react-turnstile"
 
 export default function JoinForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -19,6 +20,9 @@ export default function JoinForm() {
     whyJoin: "",
     howKnow: ""
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<"success" | "error" | null>(null)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
 
   const benefits = [
     {
@@ -60,9 +64,14 @@ export default function JoinForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setIsLoading(true)
-    setError("")
-    setSuccess(false)
+    
+    if (!turnstileToken) {
+      setSubmitStatus("error")
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitStatus(null)
 
     try {
       const response = await fetch("/api/join", {
@@ -70,16 +79,17 @@ export default function JoinForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          turnstileToken
+        }),
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.error || "Failed to submit application")
+        throw new Error("Failed to submit application")
       }
 
-      setSuccess(true)
+      setSubmitStatus("success")
       setFormData({
         name: "",
         occupation: "",
@@ -94,12 +104,13 @@ export default function JoinForm() {
 
       // Scroll to the alert
       window.scrollTo({ top: 0, behavior: "smooth" })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to submit application")
+    } catch (error) {
+      console.error("Error submitting application:", error)
+      setSubmitStatus("error")
       // Scroll to the error
       window.scrollTo({ top: 0, behavior: "smooth" })
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
   }
 
@@ -179,7 +190,7 @@ export default function JoinForm() {
                 <p className="text-gray-600">Fill out the form below to join our community</p>
               </div>
 
-              {success && (
+              {submitStatus === "success" && (
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -190,7 +201,7 @@ export default function JoinForm() {
                 </motion.div>
               )}
 
-              {error && (
+              {submitStatus === "error" && (
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -347,20 +358,36 @@ export default function JoinForm() {
                   />
                 </div>
 
+                <div className="flex justify-center">
+                  <Turnstile
+                    sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                    onVerify={(token: string) => setTurnstileToken(token)}
+                    onError={() => setTurnstileToken(null)}
+                    onExpire={() => setTurnstileToken(null)}
+                  />
+                </div>
+
                 <button
                   type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-primary text-white py-3 px-6 rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+                  disabled={isSubmitting || !turnstileToken}
+                  className={`w-full bg-primary text-white px-8 py-4 rounded-xl text-lg font-medium 
+                    ${isSubmitting || !turnstileToken ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/90'} 
+                    transition-all transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2`}
                 >
-                  {isLoading ? (
-                    "Submitting..."
-                  ) : (
-                    <>
-                      <span>Submit Application</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
+                  {isSubmitting ? "Submitting..." : "Submit Application"}
                 </button>
+
+                {submitStatus === "success" && (
+                  <div className="text-green-600 text-center">
+                    Application submitted successfully! We'll contact you soon.
+                  </div>
+                )}
+
+                {submitStatus === "error" && (
+                  <div className="text-red-600 text-center">
+                    Failed to submit application. Please try again.
+                  </div>
+                )}
               </form>
             </motion.div>
           </div>
