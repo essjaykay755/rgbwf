@@ -12,7 +12,7 @@ export default function Hero() {
         {/* Main Image */}
         <div className="relative h-full">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-01-27%20at%2011.56.26%20PM%20(1)-9m0W9ABQ9Pwkcpi6uZb0DMLNPD4Y9P.jpeg"
+            src="/hero/hero.jpg"
             alt="Smiling child reading"
             fill
             className="object-cover object-[80%_center] md:object-center"
