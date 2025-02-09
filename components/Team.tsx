@@ -16,12 +16,30 @@ export default function Team() {
       }
     },
     {
+      name: "Sankar Das",
+      role: "Vice President - Project Implementation",
+      bio: "Driving successful project execution and implementation across our initiatives.",
+      image: "/team/sankar.jpg",
+      social: {
+        linkedin: "https://www.linkedin.com/in/sankar-das",
+      }
+    },
+    {
       name: "SK Rajibul Islam",
       role: "Secretary - Programme Director",
       bio: "Orchestrating impactful programs that transform lives and build stronger communities.",
       image: "/team/rajibul.jpeg",
       social: {
         linkedin: "https://www.linkedin.com/in/sk-rajibul-islam",
+      }
+    },
+    {
+      name: "Anirban Mandal",
+      role: "Director and Treasurer",
+      bio: "Ensuring financial transparency and sustainable growth of our initiatives.",
+      image: "/team/anirban.jpg",
+      social: {
+        linkedin: "https://www.linkedin.com/in/anirban-mandal",
       }
     },
     {
@@ -40,15 +58,6 @@ export default function Team() {
       image: "/team/subhojit.webp",
       social: {
         linkedin: "https://www.linkedin.com/in/subhojit-karmakar",
-      }
-    },
-    {
-      name: "Anirban Mandal",
-      role: "Director and Treasurer",
-      bio: "Ensuring financial transparency and sustainable growth of our initiatives.",
-      image: "/team/anirban.jpg",
-      social: {
-        linkedin: "https://www.linkedin.com/in/anirban-mandal",
       }
     },
     {
