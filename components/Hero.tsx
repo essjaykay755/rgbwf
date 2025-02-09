@@ -15,7 +15,7 @@ export default function Hero() {
             src="/hero.jpeg"
             alt="Smiling children reading books together"
             fill
-            sizes="100vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
             quality={75}
             loading="eager"
             priority={true}

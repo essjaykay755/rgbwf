@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { MapPin, Users, Calendar, ArrowRight, Target } from "lucide-react"
+import OptimizedImage from "./OptimizedImage"
 
 export default function Campaigns() {
   const campaigns = [
@@ -163,14 +164,13 @@ export default function Campaigns() {
                   <div className="relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:border-primary/20 transition-all duration-500">
                     {/* Image Container */}
                     <div className="relative h-64 overflow-hidden">
-                      <div className="absolute inset-0">
-                        <img 
-                          src={campaign.image} 
-                          alt={campaign.title} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                      </div>
+                      <OptimizedImage
+                        src={campaign.image}
+                        alt={campaign.title}
+                        aspectRatio="campaign"
+                        className="group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                       
                       {/* Status Badge */}
                       <div className="absolute top-4 right-4">
