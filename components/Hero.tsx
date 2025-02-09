@@ -12,8 +12,8 @@ export default function Hero() {
         {/* Main Image */}
         <div className="relative h-full">
           <Image
-            src="/hero/hero.jpg"
-            alt="Smiling child reading"
+            src="/hero.jpeg"
+            alt="Smiling children reading books together"
             fill
             className="object-cover object-[80%_center] md:object-center"
             priority
