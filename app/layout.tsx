@@ -28,17 +28,7 @@ export const metadata: Metadata = {
   verification: {
     google: "ur8m53OSLVosH4gKxqsweh5kxGi9M2rYFWCYd1BlF7w",
   },
-  metadataBase: new URL('https://rgbwf.org'),
-  alternates: {
-    preload: [
-      {
-        href: '/hero.jpeg',
-        as: 'image',
-        type: 'image/jpeg',
-        imageSrcSet: '/hero.jpeg'
-      }
-    ]
-  }
+  metadataBase: new URL('https://rgbwf.org')
 }
 
 export default function RootLayout({
@@ -48,6 +38,24 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="preload"
+          href="/hero.jpeg"
+          as="image"
+          type="image/jpeg"
+        />
+        <link
+          rel="preconnect"
+          href="https://fonts.googleapis.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <Navbar />
         <main className="flex-grow pt-20">{children}</main>
