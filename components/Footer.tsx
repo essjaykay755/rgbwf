@@ -223,6 +223,7 @@ export default function Footer() {
                   loading="lazy" 
                   referrerPolicy="no-referrer-when-downgrade"
                   className="grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                  title="RGB Welfare Foundation office location on Google Maps"
                 />
               </div>
 
@@ -282,24 +283,27 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-110"
+                  aria-label="Visit our Facebook page"
                 >
-                  <Facebook className="w-5 h-5" />
+                  <Facebook className="w-5 h-5" aria-hidden="true" />
                 </a>
                 <a
                   href="https://www.linkedin.com/in/rgb-welfare-foundation-315696346"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-110"
+                  aria-label="Visit our LinkedIn page"
                 >
-                  <Linkedin className="w-5 h-5" />
+                  <Linkedin className="w-5 h-5" aria-hidden="true" />
                 </a>
                 <a
                   href="https://www.instagram.com/rgbwelfarefoundation"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-110"
+                  aria-label="Visit our Instagram page"
                 >
-                  <Instagram className="w-5 h-5" />
+                  <Instagram className="w-5 h-5" aria-hidden="true" />
                 </a>
               </div>
             </div>

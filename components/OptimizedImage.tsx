@@ -12,14 +12,14 @@ type OptimizedImageProps = {
 const aspectRatioClasses = {
   square: 'aspect-square',
   video: 'aspect-video',
-  hero: 'aspect-[16/10]',
+  hero: 'aspect-[16/9]',
   campaign: 'aspect-[4/3]'
 }
 
 const imageSizes = {
   square: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
   video: '(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw',
-  hero: '(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw',
+  hero: '100vw',
   campaign: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
 }
 
@@ -31,6 +31,8 @@ export default function OptimizedImage({
   priority = false,
   ...props 
 }: OptimizedImageProps) {
+  const isHero = aspectRatio === 'hero'
+  
   return (
     <div className={`relative ${aspectRatioClasses[aspectRatio]} ${className}`}>
       <Image
@@ -38,10 +40,12 @@ export default function OptimizedImage({
         alt={alt}
         fill
         sizes={imageSizes[aspectRatio]}
-        quality={75}
+        quality={isHero ? 85 : 75}
         className="object-cover"
-        loading={priority ? "eager" : "lazy"}
-        priority={priority}
+        loading={priority || isHero ? "eager" : "lazy"}
+        priority={priority || isHero}
+        fetchPriority={isHero ? "high" : undefined}
+        decoding={isHero ? "sync" : "async"}
         {...props}
       />
     </div>

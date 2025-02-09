@@ -77,6 +77,13 @@ export default function VideoSection() {
               poster="/video-thumbnail.jpg"
             >
               <source src="/intro.mp4" type="video/mp4" />
+              <track 
+                kind="captions" 
+                src="/captions/intro.vtt" 
+                srcLang="en" 
+                label="English captions"
+                default 
+              />
               Your browser does not support the video tag.
             </video>
             
@@ -86,6 +93,7 @@ export default function VideoSection() {
               animate={{ opacity: isHovered || !isPlaying ? 1 : 0 }}
               onClick={isPlaying ? handlePauseClick : handlePlayClick}
               className="absolute inset-0 flex items-center justify-center z-20 group/btn"
+              aria-label={isPlaying ? "Pause video" : "Play video"}
             >
               <motion.div
                 whileHover={{ scale: 1.1 }}

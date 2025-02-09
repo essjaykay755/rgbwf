@@ -17,10 +17,11 @@ export default function Navbar() {
           <Link href="/" className="flex items-center shrink-0 group">
             <Image
               src="/logoonly.svg"
-              alt="RGB Welfare Foundation"
+              alt="RGB Welfare Foundation Logo"
               width={40}
               height={40}
               className="h-10 w-auto transition-transform duration-300 group-hover:scale-105"
+              aria-hidden="true"
             />
             <span className="ml-3 text-xl font-semibold whitespace-nowrap">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">RGB</span>{" "}
@@ -49,6 +50,8 @@ export default function Navbar() {
           <button 
             className="lg:hidden p-2 rounded-full hover:bg-gray-100 transition-colors"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isOpen}
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
