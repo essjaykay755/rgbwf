@@ -169,6 +169,7 @@ export default function Campaigns() {
                         alt={campaign.title}
                         aspectRatio="campaign"
                         className="group-hover:scale-105 transition-transform duration-300"
+                        style={{ objectPosition: '50% 50%' }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                       
