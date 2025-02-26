@@ -14,6 +14,10 @@ declare module 'sib-api-v3-sdk' {
       email: string
       name: string
     }>
+    replyTo?: {
+      email: string
+      name: string
+    }
     attachment?: Array<{
       name: string
       content: string
@@ -36,6 +40,10 @@ declare module 'sib-api-v3-sdk' {
       email: string
       name: string
     }>
+    replyTo?: {
+      email: string
+      name: string
+    }
     attachment?: Array<{
       name: string
       content: string

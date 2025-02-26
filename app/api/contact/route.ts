@@ -1,18 +1,16 @@
-import { NextResponse } from "next/server"
-import * as SibApiV3Sdk from "@sendinblue/client"
+import { NextResponse } from 'next/server'
+import * as SibApiV3Sdk from 'sib-api-v3-sdk'
 import { verifyTurnstileToken } from "@/utils/turnstile"
 
-// Initialize both Contacts and Email APIs
-const contactsApi = new SibApiV3Sdk.ContactsApi()
-const emailApi = new SibApiV3Sdk.TransactionalEmailsApi()
+const defaultClient = SibApiV3Sdk.ApiClient.instance
 
-// Configure API key
-const apiKey = process.env.BREVO_API_KEY
-if (!apiKey) {
-  console.error("BREVO_API_KEY is not set in environment variables")
+if (!process.env.BREVO_API_KEY) {
+  throw new Error('BREVO_API_KEY is not defined in environment variables')
 }
-contactsApi.setApiKey(SibApiV3Sdk.ContactsApiApiKeys.apiKey, apiKey || "")
-emailApi.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, apiKey || "")
+
+defaultClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY
+
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi()
 
 // Function to format date in IST
 function getISTDateTime() {
@@ -35,11 +33,11 @@ export async function POST(request: Request) {
     const data = await request.json()
     console.log("Received data:", data)
 
-    const { name, email, subject, message, turnstileToken } = data
+    const { name, email, phone, message, turnstileToken } = data
 
     // Validate required fields
-    if (!name || !email || !subject || !message || !turnstileToken) {
-      console.error("Missing required fields:", { name, email, subject, message, turnstileToken })
+    if (!name || !email || !phone || !message || !turnstileToken) {
+      console.error("Missing required fields:", { name, email, phone, message, turnstileToken })
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -61,51 +59,34 @@ export async function POST(request: Request) {
 
     // Send email notification first
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail()
-    sendSmtpEmail.to = [{ email: "rgbwfoundation@gmail.com", name: "RGB Welfare Foundation" }]
-    sendSmtpEmail.subject = `New Contact Form Submission: ${subject}`
+    sendSmtpEmail.subject = 'New Contact Form Submission'
     sendSmtpEmail.htmlContent = `
-      <h2>New Contact Form Submission</h2>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Subject:</strong> ${subject}</p>
-      <p><strong>Message:</strong></p>
-      <p style="white-space: pre-wrap;">${message}</p>
-      <p><strong>Submission Time:</strong> ${istTime} (IST)</p>
+      <html>
+        <body>
+          <h2>New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message}</p>
+        </body>
+      </html>
     `
-    sendSmtpEmail.sender = { email: "team@rgbwf.org", name: "RGB Website Contact Form" }
+    sendSmtpEmail.sender = {
+      name: 'RGB Welfare Foundation',
+      email: 'rgbwfoundation@gmail.com'
+    }
+    sendSmtpEmail.to = [{
+      email: 'rgbwfoundation@gmail.com',
+      name: 'RGB Welfare Foundation'
+    }]
+    sendSmtpEmail.replyTo = {
+      email: email,
+      name: name
+    }
 
-    await emailApi.sendTransacEmail(sendSmtpEmail)
+    await apiInstance.sendTransacEmail(sendSmtpEmail)
     console.log("Email notification sent successfully")
-
-    // Create new contact or update existing one
-    const createContact = new SibApiV3Sdk.CreateContact()
-    createContact.email = email
-    createContact.attributes = {
-      FIRSTNAME: name.split(" ")[0],
-      LASTNAME: name.split(" ").slice(1).join(" "),
-      FULLNAME: name,
-      LAST_MESSAGE: message,
-      LAST_SUBJECT: subject,
-      LAST_CONTACT_DATE: istTime,
-      FORM_TYPE: "contact",
-      SUBMISSION_SOURCE: "website_contact_form"
-    }
-
-    try {
-      await contactsApi.createContact(createContact)
-    } catch (apiError: any) {
-      // If contact already exists, update it
-      if (apiError.response?.body?.code === "duplicate_parameter") {
-        const updateContact = new SibApiV3Sdk.UpdateContact()
-        updateContact.attributes = {
-          LAST_MESSAGE: message,
-          LAST_SUBJECT: subject,
-          LAST_CONTACT_DATE: istTime
-        }
-        await contactsApi.updateContact(email, updateContact)
-      }
-      // Ignore other errors since email was already sent
-    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
