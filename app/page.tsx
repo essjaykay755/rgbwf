@@ -7,10 +7,10 @@ import VideoSection from "@/components/VideoSection"
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main className="flex min-h-screen flex-col">
       <Hero />
-      <VideoSection />
       <Features />
+      <VideoSection />
       <Campaigns />
       <Team />
       <FAQ />
