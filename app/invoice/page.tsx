@@ -50,6 +50,22 @@ export default function InvoicePage() {
     checkUser()
   }, [])
 
+  // Function to check if the user is logged in
+  const checkUserLoggedIn = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        toast.error('You must be logged in to generate an invoice')
+        return false
+      }
+      return true
+    } catch (error) {
+      console.error('Error checking session:', error)
+      toast.error('Error checking login status')
+      return false
+    }
+  }
+
   const {
     register,
     handleSubmit,
@@ -63,47 +79,51 @@ export default function InvoicePage() {
 
   const onSubmit = async (data: InvoiceFormData) => {
     try {
+      // Check if the user is logged in
+      const isLoggedIn = await checkUserLoggedIn()
+      if (!isLoggedIn) return
+
       setLoading(true)
       setPreviewData(data)
 
+      console.log('Submitting form data:', data)
+      
+      // Get the current session
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        throw new Error('You must be logged in to generate an invoice')
+      }
+      
       const response = await fetch('/api/invoice', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify(data),
       })
 
+      const result = await response.json()
+      
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to generate invoice')
+        console.error('API error response:', result)
+        throw new Error(result.error || 'Failed to generate invoice')
       }
 
-      const result = await response.json()
-      toast.success('Invoice generated and sent successfully')
+      console.log('API success response:', result)
+      toast.success('Invoice generated and saved successfully')
 
-      // Open PDF in new tab
-      window.open(result.pdfUrl, '_blank')
-    } catch (error) {
+      // Download the PDF
+      const link = document.createElement('a')
+      link.href = result.pdfUrl
+      link.download = `invoice-${result.serialNumber}.pdf`
+      link.click()
+    } catch (error: any) {
       console.error('Error generating invoice:', error)
-      toast.error('Failed to generate invoice')
+      toast.error(`Failed to generate invoice: ${error.message || 'Unknown error'}`)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handlePreviewDownload = async () => {
-    try {
-      const blob = await pdf(<InvoicePDF data={formData as InvoiceFormData} />).toBlob()
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `invoice-preview-${Date.now()}.pdf`
-      link.click()
-      URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error('Error downloading preview:', error)
-      toast.error('Failed to download preview')
     }
   }
 
@@ -225,14 +245,8 @@ export default function InvoicePage() {
 
             <div className="flex gap-4">
               <Button type="submit" disabled={loading}>
-                {loading ? 'Generating...' : 'Generate & Send Invoice'}
+                {loading ? 'Generating...' : 'Generate & Download Invoice'}
               </Button>
-
-              {Object.keys(formData).every(key => formData[key as keyof InvoiceFormData]) && (
-                <Button variant="outline" onClick={handlePreviewDownload}>
-                  Download Preview
-                </Button>
-              )}
             </div>
           </form>
         </Card>

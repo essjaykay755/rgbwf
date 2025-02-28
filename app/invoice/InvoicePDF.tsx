@@ -96,6 +96,11 @@ const styles = StyleSheet.create({
   rightSection: {
     width: '40%',
   },
+  orgNameHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
 })
 
 interface InvoiceData {
@@ -117,10 +122,7 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
       <Page size="A5" orientation="landscape" style={styles.page}>
         <View style={styles.header}>
           <View style={styles.logoSection}>
-            <Image
-              src="/logowithtext.png"
-              style={styles.logo}
-            />
+            <Text style={styles.orgNameHeader}>RGB Welfare Foundation</Text>
             <View style={styles.contactInfo}>
               <Text>Phone: +91 9830-955-444</Text>
               <Text>Email: rgbwfoundation@gmail.com</Text>

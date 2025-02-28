@@ -1,16 +1,9 @@
 import { NextResponse } from "next/server"
-import * as SibApiV3Sdk from "sib-api-v3-sdk"
+import { TransactionalEmailsApi, SendSmtpEmail, TransactionalEmailsApiApiKeys } from '@getbrevo/brevo'
 import { verifyTurnstileToken } from "@/utils/turnstile"
 
-const defaultClient = SibApiV3Sdk.ApiClient.instance
-
-if (!process.env.BREVO_API_KEY) {
-  throw new Error('BREVO_API_KEY is not defined in environment variables')
-}
-
-defaultClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY
-
-const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi()
+const apiInstance = new TransactionalEmailsApi()
+apiInstance.setApiKey(TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY || '')
 
 // Function to format date in IST
 function getISTDateTime() {
@@ -80,8 +73,8 @@ export async function POST(request: Request) {
       )
     }
 
-    // Send email notification first
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail()
+    // Send email notification
+    const sendSmtpEmail = new SendSmtpEmail()
     sendSmtpEmail.subject = 'New Volunteer Application'
     sendSmtpEmail.htmlContent = `
       <html>
