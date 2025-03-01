@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
     transform: 'translate(-50%, -50%)',
     opacity: 0.03,
     zIndex: -1,
-    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -98,6 +97,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     paddingRight: 5,
+    marginBottom: 20,
   },
   bold: {
     fontWeight: 'bold',
@@ -120,6 +120,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 15,
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: 8,
+    color: '#666',
   },
 })
 
@@ -161,8 +170,10 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
   return (
     <Document {...props}>
       <Page size="A5" orientation="landscape" style={styles.page}>
-        {/* Background logo with low opacity - conditionally rendered */}
-        {showBackgroundLogo && <Image src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/logoonly.png`} style={styles.backgroundLogo} />}
+        {/* Background logo with low opacity - centered on the page */}
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+          {showBackgroundLogo && <Image src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/logoonly.png`} style={{ width: 250, opacity: 0.03 }} />}
+        </View>
         
         <View style={styles.header}>
           <View style={styles.logoSection}>
@@ -232,6 +243,10 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
         <View style={styles.total}>
           <Text style={styles.bold}>Total Amount: ₹{data.amount ? data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '0.00'}</Text>
         </View>
+
+        <Text style={styles.footer}>
+          License No: RGBWF/2023/001 | PAN: AADTR1234C | GST: 19AADTR1234C1ZA
+        </Text>
       </Page>
     </Document>
   )
