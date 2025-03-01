@@ -101,8 +101,31 @@ export async function GET(request: NextRequest) {
     
     console.log('Redirecting to signed URL for download')
     
-    // Redirect to the signed URL
-    return NextResponse.redirect(urlData.signedUrl)
+    // Instead of redirecting, fetch the PDF and return it with proper headers
+    try {
+      const response = await fetch(urlData.signedUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
+      }
+      
+      const pdfBuffer = await response.arrayBuffer();
+      
+      // Create a response with the PDF content and appropriate headers
+      const headers = new Headers();
+      headers.set('Content-Type', 'application/pdf');
+      headers.set('Content-Disposition', `attachment; filename="${serialNumber}.pdf"`);
+      
+      return new NextResponse(pdfBuffer, {
+        status: 200,
+        headers
+      });
+    } catch (fetchError) {
+      console.error('Error fetching PDF from signed URL:', fetchError);
+      
+      // Fall back to redirect if fetching fails
+      return NextResponse.redirect(urlData.signedUrl);
+    }
   } catch (error) {
     console.error('Unexpected error in download-invoice API:', error)
     return NextResponse.json({ 

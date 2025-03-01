@@ -168,8 +168,31 @@ async function regenerateInvoice(serialNumber: string, invoiceData: any) {
     
     console.log('Signed URL generated for regenerated PDF')
     
-    // Redirect to the signed URL for direct download
-    return NextResponse.redirect(urlData.signedUrl)
+    // Instead of redirecting, return the PDF with proper headers
+    try {
+      const response = await fetch(urlData.signedUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
+      }
+      
+      const pdfBuffer = await response.arrayBuffer();
+      
+      // Create a response with the PDF content and appropriate headers
+      const headers = new Headers();
+      headers.set('Content-Type', 'application/pdf');
+      headers.set('Content-Disposition', `attachment; filename="${serialNumber}.pdf"`);
+      
+      return new NextResponse(pdfBuffer, {
+        status: 200,
+        headers
+      });
+    } catch (fetchError) {
+      console.error('Error fetching PDF from signed URL:', fetchError);
+      
+      // Fall back to redirect if fetching fails
+      return NextResponse.redirect(urlData.signedUrl);
+    }
   } catch (error) {
     console.error('Error in regenerateInvoice function:', error)
     return NextResponse.json({ 
