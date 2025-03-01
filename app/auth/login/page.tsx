@@ -10,8 +10,12 @@ function LoginContent() {
   const redirectTo = searchParams.get('redirectTo') || '/invoice'
   const [isLoading, setIsLoading] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [hasRedirected, setHasRedirected] = useState(false)
 
   useEffect(() => {
+    // Prevent multiple redirects
+    if (hasRedirected) return
+    
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
@@ -21,9 +25,11 @@ function LoginContent() {
           
           // If already logged in, redirect to the target page
           if (session.user.email === 'rgbwfoundation@gmail.com') {
+            setHasRedirected(true)
             window.location.href = redirectTo
           } else {
             // If not authorized, redirect to home
+            setHasRedirected(true)
             window.location.href = '/'
           }
         }
@@ -35,7 +41,7 @@ function LoginContent() {
     }
 
     checkSession()
-  }, [redirectTo])
+  }, [redirectTo, hasRedirected])
 
   const handleLogin = async () => {
     try {

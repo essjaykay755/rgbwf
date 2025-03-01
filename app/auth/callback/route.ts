@@ -16,17 +16,23 @@ export async function GET(request: NextRequest) {
   // Create a Supabase client for the route handler
   const supabase = createRouteHandlerClient({ cookies })
   
-  // Exchange the code for a session
-  await supabase.auth.exchangeCodeForSession(code)
-  
-  // Get the user to check if they're authorized
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  // If the user is rgbwfoundation@gmail.com, redirect to the specified page or invoice page
-  if (user && user.email === 'rgbwfoundation@gmail.com') {
-    return NextResponse.redirect(new URL(redirectTo, requestUrl.origin))
+  try {
+    // Exchange the code for a session
+    await supabase.auth.exchangeCodeForSession(code)
+    
+    // Get the user to check if they're authorized
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    // If the user is rgbwfoundation@gmail.com, redirect to the specified page or invoice page
+    if (user && user.email === 'rgbwfoundation@gmail.com') {
+      return NextResponse.redirect(new URL(redirectTo, requestUrl.origin))
+    }
+    
+    // Otherwise, redirect to the homepage
+    return NextResponse.redirect(new URL('/', requestUrl.origin))
+  } catch (error) {
+    console.error('Error in auth callback:', error)
+    // On error, redirect to login
+    return NextResponse.redirect(new URL('/auth/login', requestUrl.origin))
   }
-  
-  // Otherwise, redirect to the homepage
-  return NextResponse.redirect(new URL('/', requestUrl.origin))
 } 
