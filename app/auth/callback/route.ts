@@ -3,6 +3,8 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
@@ -28,14 +30,27 @@ export async function GET(request: NextRequest) {
       // Add a cache-busting parameter to prevent browser caching issues
       const targetUrl = new URL(redirectTo, requestUrl.origin)
       targetUrl.searchParams.set('t', Date.now().toString())
-      return NextResponse.redirect(targetUrl)
+      
+      // Create a response with cache control headers
+      const response = NextResponse.redirect(targetUrl)
+      
+      // Set cache control headers to prevent caching
+      response.headers.set('Cache-Control', 'no-store, max-age=0')
+      response.headers.set('Pragma', 'no-cache')
+      response.headers.set('Expires', '0')
+      
+      return response
     }
     
     // Otherwise, redirect to the homepage
-    return NextResponse.redirect(new URL('/?auth=unauthorized', requestUrl.origin))
+    const response = NextResponse.redirect(new URL('/?auth=unauthorized', requestUrl.origin))
+    response.headers.set('Cache-Control', 'no-store, max-age=0')
+    return response
   } catch (error) {
     console.error('Error in auth callback:', error)
     // On error, redirect to login with an error parameter
-    return NextResponse.redirect(new URL('/auth/login?error=callback_error', requestUrl.origin))
+    const response = NextResponse.redirect(new URL('/auth/login?error=callback_error', requestUrl.origin))
+    response.headers.set('Cache-Control', 'no-store, max-age=0')
+    return response
   }
 } 
