@@ -1,81 +1,93 @@
-import { createBrowserClient } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 export function LoginButton() {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
-  const [initialized, setInitialized] = useState(false)
-
-  useEffect(() => {
-    // Initialize once on component mount
-    setInitialized(true)
-  }, [])
 
   const handleLogin = async () => {
     try {
       setIsLoggingIn(true)
       console.log('Starting login process')
       
-      // Get the browser client
-      const browserClient = createBrowserClient()
-      if (!browserClient) {
-        console.error('Browser client initialization failed')
-        toast.error('Authentication system initialization failed')
-        setIsLoggingIn(false)
-        return
+      // Get environment variables
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error('Supabase environment variables are not set')
       }
+      
+      // Initialize Supabase client directly
+      const supabase = createClient(
+        supabaseUrl,
+        supabaseAnonKey,
+        {
+          auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: false, // Disable auto detection to prevent issues
+          }
+        }
+      )
       
       // Clear any existing session first
       console.log('Clearing any existing session')
-      const { error: signOutError } = await browserClient.auth.signOut()
-      if (signOutError) {
-        console.warn('Error signing out before login:', signOutError)
-      }
+      await supabase.auth.signOut()
       
-      // Use more secure authentication
+      // Get the current origin for the redirect URL
+      const origin = window.location.origin
+      console.log('Current origin:', origin)
+      
+      // Create the redirect URL
+      const redirectUrl = `${origin}/auth/callback`
+      console.log('Redirect URL:', redirectUrl)
+      
+      // Use OAuth for Google sign-in
       console.log('Initiating OAuth login with Google')
-      const { data, error } = await browserClient.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
           },
-          skipBrowserRedirect: false, // Ensure browser redirects
         },
       })
       
       if (error) {
         console.error('Error initiating OAuth login:', error)
-        toast.error('Failed to start login process')
+        toast.error(`Failed to start login process: ${error.message}`)
         throw error
       }
       
-      console.log('OAuth login initiated successfully, URL:', data?.url)
-      // The browser will be redirected by Supabase, so we don't need to do anything else here
+      if (!data || !data.url) {
+        console.error('No URL returned from signInWithOAuth')
+        toast.error('Failed to generate authentication URL')
+        throw new Error('No URL returned from signInWithOAuth')
+      }
+      
+      console.log('OAuth login initiated successfully, URL:', data.url)
+      
+      // Redirect the browser
+      window.location.href = data.url
     } catch (error: any) {
       console.error('Error logging in:', error)
       toast.error(`Login failed: ${error.message || 'Unknown error'}`)
+    } finally {
       setIsLoggingIn(false)
     }
   }
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <Image
-        src="/logowithtext.png"
-        alt="RGB Foundation"
-        width={300}
-        height={150}
-        priority
-      />
+    <div className="flex flex-col items-center gap-4 w-full">
       <Button 
         onClick={handleLogin}
         disabled={isLoggingIn}
-        className="flex items-center gap-2 bg-white text-gray-800 hover:bg-gray-100 border border-gray-300"
+        className="flex items-center gap-2 bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 w-full justify-center py-6"
       >
         <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
           <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
@@ -87,6 +99,9 @@ export function LoginButton() {
         </svg>
         {isLoggingIn ? 'Signing in...' : 'Sign in with Google'}
       </Button>
+      <p className="text-xs text-gray-500 text-center mt-2">
+        Only authorized accounts can access the invoice generator
+      </p>
     </div>
   )
 } 

@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { createBrowserClient, getSession, getUser } from '@/lib/supabase'
-import { PDFViewer, PDFDownloadLink, pdf } from '@react-pdf/renderer'
+import { PDFViewer } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -13,9 +12,10 @@ import { Card } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { InvoicePDF } from './InvoicePDF'
 import { useRouter } from 'next/navigation'
-import { LoginButton } from '@/components/ui/LoginButton'
 import { LogOut } from 'lucide-react'
+import { createBrowserClient, getSession, getUser, signOut, isAuthorizedEmail } from '@/lib/supabase'
 
+// Define the schema for form validation
 const invoiceSchema = z.object({
   donorName: z.string().min(1, 'Donor name is required'),
   donorEmail: z.string().email('Invalid email address'),
@@ -32,91 +32,139 @@ export default function InvoicePage() {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [initialized, setInitialized] = useState(false)
   const router = useRouter()
 
+  // Check authentication status
   useEffect(() => {
-    // Initialize once on component mount
-    setInitialized(true)
-  }, [])
-
-  useEffect(() => {
-    if (!initialized) return
-
-    const checkUser = async () => {
+    const checkAuth = async () => {
       try {
         setIsLoading(true)
-        console.log('Checking user in invoice page')
+        console.log('Checking authentication in invoice page')
         
-        // Get the session first
+        // Initialize the browser client
+        const supabase = createBrowserClient()
+        if (!supabase) {
+          console.error('Failed to initialize Supabase client')
+          toast.error('Authentication error: Failed to initialize')
+          router.push('/auth/login')
+          return
+        }
+        
+        // Get the current session
         const session = await getSession()
         
         if (!session) {
-          console.log('No session found in invoice page, redirecting to home')
-          router.push('/')
+          console.log('No session found, redirecting to login')
+          toast.error('Please sign in to access this page')
+          router.push('/auth/login')
           return
         }
         
-        console.log('Session found in invoice page, user:', session.user.email)
-        
-        // Get the user details
-        const user = await getUser()
-        
-        if (!user) {
-          console.log('No user found in invoice page despite having session, redirecting to home')
-          router.push('/')
-          return
-        }
-        
-        console.log('User found in invoice page:', user.email)
-        setUser(user)
+        console.log('Session found, user:', session.user.email)
         
         // Check if user is authorized
-        if (user.email !== 'rgbwfoundation@gmail.com') {
-          console.log('User not authorized, redirecting to home')
+        if (!isAuthorizedEmail(session.user.email || '')) {
+          console.log('User not authorized, signing out and redirecting to home')
           toast.error('You do not have permission to access this page')
-          router.push('/')
+          
+          // Sign out the unauthorized user
+          await signOut()
+          
+          router.push('/?error=unauthorized')
           return
         }
+        
+        setUser(session.user)
+        console.log('User is authorized, allowing access to invoice page')
       } catch (error) {
-        console.error('Error checking user:', error)
+        console.error('Error checking authentication:', error)
         toast.error('Error checking authentication status')
-        router.push('/')
+        router.push('/auth/login')
       } finally {
         setIsLoading(false)
       }
     }
+    
+    checkAuth()
+  }, [router])
 
-    checkUser()
-  }, [initialized, router])
+  // Get today's date in YYYY-MM-DD format for the form
+  const getTodayFormatted = () => {
+    try {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      console.error('Error formatting today\'s date:', error);
+      return ''; // Return empty string as fallback
+    }
+  };
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    reset
   } = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceSchema),
-  })
+    defaultValues: {
+      date: getTodayFormatted(),
+      donorName: '',
+      donorEmail: '',
+      donorAddress: '',
+      description: '',
+    }
+  });
 
-  const formData = watch()
+  const formData = watch();
+
+  // Safe preview data generation
+  const generatePreview = () => {
+    if (!formData.donorName || !formData.donorEmail || !formData.donorAddress || 
+        !formData.amount || !formData.description || !formData.date) {
+      return null;
+    }
+    
+    return {
+      donorName: formData.donorName,
+      donorEmail: formData.donorEmail,
+      donorAddress: formData.donorAddress,
+      amount: Number(formData.amount),
+      description: formData.description,
+      date: formData.date
+    };
+  };
 
   const onSubmit = async (data: InvoiceFormData) => {
     try {
-      // Check if we have a session
+      // Get the current session
       const session = await getSession()
       
       if (!session) {
-        console.log('No session found when submitting form')
+        console.error('Error getting session for form submission')
         toast.error('Your session has expired. Please log in again.')
-        router.push('/')
+        router.push('/auth/login')
         return
       }
 
       setLoading(true)
-      setPreviewData(data)
+      
+      // Create a safe copy of the data
+      const safeData = {
+        donorName: data.donorName,
+        donorEmail: data.donorEmail,
+        donorAddress: data.donorAddress,
+        amount: Number(data.amount),
+        description: data.description,
+        date: data.date
+      };
+      
+      setPreviewData(safeData)
 
-      console.log('Submitting form data:', data)
+      console.log('Submitting form data:', safeData)
       
       const response = await fetch('/api/invoice', {
         method: 'POST',
@@ -124,7 +172,7 @@ export default function InvoicePage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(safeData),
       })
 
       const result = await response.json()
@@ -136,6 +184,16 @@ export default function InvoicePage() {
 
       console.log('API success response:', result)
       toast.success('Invoice generated and saved successfully')
+
+      // Reset the form after successful submission
+      reset({
+        donorName: '',
+        donorEmail: '',
+        donorAddress: '',
+        amount: undefined,
+        description: '',
+        date: getTodayFormatted(),
+      })
 
       // Download the PDF
       const link = document.createElement('a')
@@ -152,66 +210,41 @@ export default function InvoicePage() {
 
   const handleLogout = async () => {
     try {
-      // Get the browser client
-      const browserClient = createBrowserClient()
-      if (!browserClient) {
-        toast.error('Browser client initialization failed')
-        return
-      }
-      
       console.log('Logging out')
-      const { error } = await browserClient.auth.signOut()
-      
-      if (error) {
-        console.error('Error signing out:', error)
-        throw error
-      }
-      
+      await signOut()
       console.log('Successfully signed out')
       router.push('/')
       toast.success('Logged out successfully')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error logging out:', error)
-      toast.error('Failed to log out')
+      toast.error(`Failed to log out: ${error.message || 'Unknown error'}`)
     }
   }
 
+  // Show loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Loading...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <p>Loading authentication status...</p>
+        <p className="text-sm text-gray-500">Please wait while we verify your session</p>
       </div>
     )
   }
 
+  // Show login prompt if no user
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <p>Please sign in to access the invoice generation system.</p>
-        <LoginButton />
+        <Button onClick={() => router.push('/auth/login')}>Go to Login Page</Button>
       </div>
     )
   }
 
-  if (user && user.email !== 'rgbwfoundation@gmail.com') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p>You don't have permission to access this page.</p>
-        <div className="flex gap-4">
-          <Button onClick={() => router.push('/')}>Go Home</Button>
-          <Button 
-            variant="outline" 
-            onClick={handleLogout}
-            className="flex items-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </Button>
-        </div>
-      </div>
-    )
-  }
+  // Calculate preview data safely
+  const previewDataSafe = previewData || generatePreview();
 
+  // Show the invoice form for authorized users
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
@@ -281,24 +314,26 @@ export default function InvoicePage() {
               )}
             </div>
 
-            <div className="flex gap-4">
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Generating...' : 'Generate & Download Invoice'}
-              </Button>
-            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Generating Invoice...' : 'Generate Invoice'}
+            </Button>
           </form>
         </Card>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
-          {Object.keys(formData).every(key => formData[key as keyof InvoiceFormData]) && (
-            <div className="h-[800px]">
-              <PDFViewer width="100%" height="100%">
-                <InvoicePDF data={formData as InvoiceFormData} />
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h2 className="text-xl font-semibold mb-4">Invoice Preview</h2>
+          {previewDataSafe ? (
+            <div className="h-[600px] overflow-hidden rounded border border-gray-300">
+              <PDFViewer width="100%" height="100%" className="rounded">
+                <InvoicePDF data={previewDataSafe} />
               </PDFViewer>
             </div>
+          ) : (
+            <div className="flex items-center justify-center h-[600px] bg-gray-100 rounded border border-gray-300">
+              <p className="text-gray-500">Fill out the form to preview the invoice</p>
+            </div>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   )

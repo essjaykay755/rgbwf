@@ -17,27 +17,27 @@ export async function middleware(req: NextRequest) {
 
     // Check if accessing invoice page
     if (req.nextUrl.pathname.startsWith('/invoice')) {
-      // If not logged in, redirect to home
+      // If not logged in, redirect to login page
       if (!session) {
-        console.log('Middleware: No session found, redirecting to home')
-        return NextResponse.redirect(new URL('/', req.url))
+        console.log('No session found, redirecting to login')
+        return NextResponse.redirect(new URL('/auth/login', req.url))
       }
       
-      console.log('Middleware: Session found, user:', session.user.email)
-      
-      // If user is logged in but not authorized, redirect to home
+      // If user is logged in but not authorized, sign them out and redirect to home
       if (session.user.email !== 'rgbwfoundation@gmail.com') {
-        console.log('Middleware: User not authorized, redirecting to home')
-        return NextResponse.redirect(new URL('/', req.url))
+        console.log('User not authorized:', session.user.email)
+        
+        // Sign out the unauthorized user
+        await supabase.auth.signOut()
+        
+        return NextResponse.redirect(new URL('/?error=unauthorized', req.url))
       }
       
-      console.log('Middleware: User authorized, allowing access to invoice page')
+      console.log('User authorized, allowing access to invoice page')
     }
 
     // Allow access to auth callback routes
-    if (req.nextUrl.pathname.startsWith('/auth/callback') || 
-        req.nextUrl.pathname.startsWith('/auth/confirm')) {
-      console.log('Middleware: Allowing access to auth route:', req.nextUrl.pathname)
+    if (req.nextUrl.pathname.startsWith('/auth/callback')) {
       return res
     }
   } catch (error) {
@@ -49,5 +49,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/invoice/:path*', '/auth/callback/:path*', '/auth/confirm/:path*']
+  matcher: ['/invoice/:path*', '/auth/callback/:path*', '/auth/login/:path*']
 } 

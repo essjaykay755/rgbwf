@@ -77,13 +77,6 @@ export default function VideoSection() {
               poster="/video-thumbnail.jpg"
             >
               <source src="/intro.mp4" type="video/mp4" />
-              <track 
-                kind="captions" 
-                src="/captions/intro.vtt" 
-                srcLang="en" 
-                label="English captions"
-                default 
-              />
               Your browser does not support the video tag.
             </video>
             

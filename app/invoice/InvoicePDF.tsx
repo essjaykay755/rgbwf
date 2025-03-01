@@ -1,5 +1,4 @@
 import { Document, Page, Text, View, StyleSheet, Image, DocumentProps, Font } from '@react-pdf/renderer'
-import { format } from 'date-fns'
 
 // Register a font that supports the rupee symbol
 Font.register({
@@ -117,6 +116,24 @@ interface InvoicePDFProps extends DocumentProps {
 }
 
 export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
+  // Format date manually without using date-fns
+  const formatDate = (dateString: string) => {
+    try {
+      // Check if the date string is in YYYY-MM-DD format
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        const [year, month, day] = dateString.split('-').map(part => parseInt(part, 10));
+        return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+      }
+      return dateString || 'N/A';
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'N/A';
+    }
+  };
+
+  // Generate a unique invoice number
+  const invoiceNumber = `INV-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
+
   return (
     <Document {...props}>
       <Page size="A5" orientation="landscape" style={styles.page}>
@@ -139,8 +156,8 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
         <View style={styles.mainContent}>
           <View style={styles.leftSection}>
             <View style={styles.invoiceDetails}>
-              <Text style={styles.text}>Invoice Date: {format(new Date(data.date), 'dd/MM/yyyy')}</Text>
-              <Text style={styles.text}>Invoice Number: {data.date ? `INV-${Date.now()}` : ''}</Text>
+              <Text style={styles.text}>Invoice Date: {formatDate(data.date)}</Text>
+              <Text style={styles.text}>Invoice Number: {invoiceNumber}</Text>
             </View>
 
             <View style={styles.invoiceDetails}>
@@ -176,13 +193,13 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
               <Text>{data.description}</Text>
             </View>
             <View style={styles.tableColAmount}>
-              <Text>₹{data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</Text>
+              <Text>₹{data.amount ? data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '0.00'}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.total}>
-          <Text style={styles.bold}>Total Amount: ₹{data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</Text>
+          <Text style={styles.bold}>Total Amount: ₹{data.amount ? data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '0.00'}</Text>
         </View>
       </Page>
     </Document>
