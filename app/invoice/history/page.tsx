@@ -170,35 +170,52 @@ export default function InvoiceHistoryPage() {
 
   const downloadInvoice = async (serialNumber: string) => {
     try {
+      toast.loading('Preparing invoice for download...')
+      
       const supabase = createBrowserClient()
       if (!supabase) {
+        toast.dismiss()
         console.error('Failed to initialize Supabase client')
         toast.error('Error: Failed to initialize database connection')
         return
       }
       
-      // Get a signed URL for the PDF
+      // Get a signed URL for the PDF directly
       const { data, error } = await supabase
         .storage
         .from('invoices')
-        .createSignedUrl(`${serialNumber}.pdf`, 60)
+        .createSignedUrl(`${serialNumber}.pdf`, 60 * 60) // 60 minutes expiry
       
       if (error) {
+        toast.dismiss()
         console.error('Error getting signed URL:', error)
-        toast.error('Failed to generate download link')
+        toast.error('Failed to generate download link: ' + error.message)
         return
       }
       
-      // Download the PDF
+      if (!data || !data.signedUrl) {
+        toast.dismiss()
+        console.error('No signed URL returned')
+        toast.error('Failed to generate download link. File may not exist.')
+        return
+      }
+      
+      console.log('Generated signed URL for download')
+      
+      // Create a temporary link element to trigger the download
       const link = document.createElement('a')
       link.href = data.signedUrl
       link.download = `invoice-${serialNumber}.pdf`
+      document.body.appendChild(link)
       link.click()
+      document.body.removeChild(link)
       
+      toast.dismiss()
       toast.success('Invoice download started')
     } catch (error) {
+      toast.dismiss()
       console.error('Error downloading invoice:', error)
-      toast.error('Failed to download invoice')
+      toast.error('Failed to download invoice: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
   }
 
@@ -315,7 +332,7 @@ export default function InvoiceHistoryPage() {
                       <div className="text-sm text-gray-500">{invoice.donor_details.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      ${Number(invoice.amount).toFixed(2)}
+                      ₹{Number(invoice.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
                       {invoice.description}

@@ -166,13 +166,16 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
 
   // Use a smaller background logo or none at all if causing issues
   const showBackgroundLogo = true; // Set to true to enable background logo
+  
+  // Use absolute paths for images to avoid issues
+  const logoPath = '/logoonly.png';
 
   return (
     <Document {...props}>
       <Page size="A5" orientation="landscape" style={styles.page}>
         {/* Background logo with low opacity - centered on the page */}
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
-          {showBackgroundLogo && <Image src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/logoonly.png`} style={{ width: 250, opacity: 0.03 }} />}
+          {showBackgroundLogo && <Image src={logoPath} style={{ width: 250, opacity: 0.03 }} />}
         </View>
         
         <View style={styles.header}>
@@ -209,7 +212,7 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
           <View style={styles.rightSection}>
             <View style={styles.orgDetails}>
               {/* Logo with full opacity */}
-              <Image src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/logoonly.png`} style={styles.orgLogo} />
+              <Image src={logoPath} style={styles.orgLogo} />
               <View style={styles.orgDetailsText}>
                 <Text style={styles.orgName}>RGB Welfare Foundation</Text>
                 <Text style={styles.text}>P-348, Basunagar Gate No 1</Text>
