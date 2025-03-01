@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { supabase } from '@/lib/supabase'
+import { supabase, createBrowserClient } from '@/lib/supabase'
 import { PDFViewer, PDFDownloadLink, pdf } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,14 +32,33 @@ export default function InvoicePage() {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [browserClient, setBrowserClient] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
+    // Initialize the browser client
+    setBrowserClient(createBrowserClient())
+  }, [])
+
+  useEffect(() => {
+    if (!browserClient) return
+
     const checkUser = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error) throw error
-        setUser(user)
+        console.log('Checking user in invoice page')
+        const { data: { user }, error } = await browserClient.auth.getUser()
+        
+        if (error) {
+          console.error('Error getting user in invoice page:', error)
+          throw error
+        }
+        
+        if (user) {
+          console.log('User found in invoice page:', user.email)
+          setUser(user)
+        } else {
+          console.log('No user found in invoice page')
+        }
       } catch (error) {
         console.error('Error checking user:', error)
       } finally {
@@ -48,16 +67,31 @@ export default function InvoicePage() {
     }
 
     checkUser()
-  }, [])
+  }, [browserClient])
 
   // Function to check if the user is logged in
   const checkUserLoggedIn = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      if (!browserClient) {
+        toast.error('Browser client not initialized')
+        return false
+      }
+      
+      const { data: { session }, error } = await browserClient.auth.getSession()
+      
+      if (error) {
+        console.error('Error checking session in invoice page:', error)
+        toast.error('Error checking login status')
+        return false
+      }
+      
       if (!session) {
+        console.log('No session found in invoice page')
         toast.error('You must be logged in to generate an invoice')
         return false
       }
+      
+      console.log('Session found in invoice page, user:', session.user.email)
       return true
     } catch (error) {
       console.error('Error checking session:', error)
@@ -89,11 +123,22 @@ export default function InvoicePage() {
       console.log('Submitting form data:', data)
       
       // Get the current session
-      const { data: { session } } = await supabase.auth.getSession()
+      if (!browserClient) {
+        throw new Error('Browser client not initialized')
+      }
+      
+      const { data: { session }, error: sessionError } = await browserClient.auth.getSession()
+      
+      if (sessionError) {
+        console.error('Error getting session for API call:', sessionError)
+        throw new Error('Error getting session')
+      }
       
       if (!session) {
         throw new Error('You must be logged in to generate an invoice')
       }
+      
+      console.log('Using session for API call, user:', session.user.email)
       
       const response = await fetch('/api/invoice', {
         method: 'POST',
@@ -129,7 +174,20 @@ export default function InvoicePage() {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut()
+      if (!browserClient) {
+        toast.error('Browser client not initialized')
+        return
+      }
+      
+      console.log('Logging out')
+      const { error } = await browserClient.auth.signOut()
+      
+      if (error) {
+        console.error('Error signing out:', error)
+        throw error
+      }
+      
+      console.log('Successfully signed out')
       router.push('/')
       toast.success('Logged out successfully')
     } catch (error) {

@@ -1,25 +1,36 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, createBrowserClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function LoginButton() {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [browserClient, setBrowserClient] = useState<any>(null)
+
+  useEffect(() => {
+    // Initialize the browser client
+    setBrowserClient(createBrowserClient())
+  }, [])
 
   const handleLogin = async () => {
     try {
       setIsLoggingIn(true)
       console.log('Starting login process')
       
+      if (!browserClient) {
+        console.error('Browser client not initialized')
+        throw new Error('Browser client not initialized')
+      }
+      
       // Clear any existing session first
-      const { error: signOutError } = await supabase.auth.signOut()
+      const { error: signOutError } = await browserClient.auth.signOut()
       if (signOutError) {
         console.warn('Error signing out before login:', signOutError)
       }
       
       // Use more secure authentication
       console.log('Initiating OAuth login with Google')
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await browserClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,

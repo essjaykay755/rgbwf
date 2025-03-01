@@ -2,15 +2,23 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { supabase, createBrowserClient } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 export default function AuthConfirmPage() {
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [browserClient, setBrowserClient] = useState<any>(null)
 
   useEffect(() => {
+    // Initialize the browser client
+    setBrowserClient(createBrowserClient())
+  }, [])
+
+  useEffect(() => {
+    if (!browserClient) return
+
     // Check for the hash fragment in the URL
     const handleHashFragment = async () => {
       try {
@@ -35,7 +43,7 @@ export default function AuthConfirmPage() {
           if (accessToken) {
             // Set the session using the hash parameters
             console.log('Setting session with access token')
-            const { data, error } = await supabase.auth.setSession({
+            const { data, error } = await browserClient.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken || '',
             })
@@ -48,7 +56,7 @@ export default function AuthConfirmPage() {
             console.log('Session set successfully, user:', data.user)
             
             // Get the user to verify the session was set
-            const { data: { user }, error: getUserError } = await supabase.auth.getUser()
+            const { data: { user }, error: getUserError } = await browserClient.auth.getUser()
             
             if (getUserError) {
               console.error('Error getting user after setting session:', getUserError)
@@ -71,7 +79,7 @@ export default function AuthConfirmPage() {
           
           // After a short delay, check if we have a session
           setTimeout(async () => {
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+            const { data: { session }, error: sessionError } = await browserClient.auth.getSession()
             
             if (sessionError) {
               console.error('Error checking session:', sessionError)
@@ -106,7 +114,7 @@ export default function AuthConfirmPage() {
     }
 
     handleHashFragment()
-  }, [router])
+  }, [router, browserClient])
 
   return (
     <div className="flex items-center justify-center min-h-screen">
