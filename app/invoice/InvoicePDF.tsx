@@ -245,7 +245,7 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
         </View>
 
         <Text style={styles.footer}>
-          License No: RGBWF/2023/001 | PAN: AADTR1234C | GST: 19AADTR1234C1ZA
+          Registration No: U88100WB2025NPL275903 | License No: 163588 | NITI Aayog: WB/2025/0503823
         </Text>
       </Page>
     </Document>

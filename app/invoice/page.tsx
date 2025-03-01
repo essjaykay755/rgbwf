@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { InvoicePDF } from './InvoicePDF'
 import { useRouter } from 'next/navigation'
-import { LogOut } from 'lucide-react'
+import { LogOut, History } from 'lucide-react'
 import { createBrowserClient, getSession, getUser, signOut, isAuthorizedEmail } from '@/lib/supabase'
 
 // Define the schema for form validation
@@ -249,14 +249,24 @@ export default function InvoicePage() {
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Generate Invoice</h1>
-        <Button 
-          variant="outline" 
-          onClick={handleLogout}
-          className="flex items-center gap-2"
-        >
-          <LogOut className="w-4 h-4" />
-          Logout
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/invoice/history')}
+            className="flex items-center gap-2"
+          >
+            <History className="w-4 h-4" />
+            View Invoice History
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleLogout}
+            className="flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
