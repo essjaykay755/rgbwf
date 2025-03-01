@@ -15,12 +15,12 @@ const styles = StyleSheet.create({
   },
   backgroundLogo: {
     position: 'absolute',
-    width: 200,
-    height: 200,
+    width: 250,
+    height: 250,
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    opacity: 0.05,
+    opacity: 0.03,
     zIndex: -1,
   },
   header: {
@@ -51,8 +51,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   orgLogo: {
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 40,
   },
   orgName: {
     fontSize: 12,
@@ -155,13 +155,13 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
   const invoiceNumber = `INV-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
 
   // Use a smaller background logo or none at all if causing issues
-  const showBackgroundLogo = false; // Set to false to disable background logo
+  const showBackgroundLogo = true; // Set to true to enable background logo
 
   return (
     <Document {...props}>
       <Page size="A5" orientation="landscape" style={styles.page}>
         {/* Background logo with low opacity - conditionally rendered */}
-        {showBackgroundLogo && <Image src="/logoonly.png" style={styles.backgroundLogo} />}
+        {showBackgroundLogo && <Image src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/logoonly.png`} style={styles.backgroundLogo} />}
         
         <View style={styles.header}>
           <View style={styles.logoSection}>
