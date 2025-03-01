@@ -14,6 +14,7 @@ export const createBrowserClient = () => {
   }
   
   if (!browserClient) {
+    // Create a client that can handle hash fragments
     browserClient = createClientComponentClient()
   }
   
@@ -25,10 +26,24 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false, // Disable this to prevent duplicate session handling
-    flowType: 'pkce'
+    detectSessionInUrl: false, // Disable this for server-side to prevent issues
   }
 })
+
+// Create a special client that can handle hash fragments for direct use
+export const createHashFragmentClient = () => {
+  if (typeof window === 'undefined') {
+    return null
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true, // Enable this to handle hash fragments
+    }
+  })
+}
 
 export const getUser = async () => {
   try {

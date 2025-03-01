@@ -1,11 +1,82 @@
 import { createClient } from '@supabase/supabase-js'
 import { Button } from '@/components/ui/button'
-import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 export function LoginButton() {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const router = useRouter()
+
+  // Check for hash fragments on component mount
+  useEffect(() => {
+    // If we have a hash fragment with access_token, we need to handle it
+    if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
+      console.log('Hash fragment with access token detected')
+      handleHashLogin()
+    }
+  }, [])
+
+  // Handle login from hash fragment
+  const handleHashLogin = async () => {
+    try {
+      console.log('Processing hash fragment login')
+      setIsLoggingIn(true)
+      
+      // Get environment variables
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error('Supabase environment variables are not set')
+      }
+      
+      // Initialize Supabase client
+      const supabase = createClient(
+        supabaseUrl,
+        supabaseAnonKey,
+        {
+          auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true, // Enable detection for hash fragments
+          }
+        }
+      )
+      
+      // Get the current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError) {
+        console.error('Error getting session from hash:', sessionError)
+        toast.error(`Session error: ${sessionError.message}`)
+        return
+      }
+      
+      if (session) {
+        console.log('Session obtained from hash fragment')
+        
+        // Check if user is authorized
+        if (session.user.email === 'rgbwfoundation@gmail.com') {
+          console.log('Authorized user, redirecting to invoice page')
+          toast.success('Login successful!')
+          router.push('/invoice')
+        } else {
+          console.log('Unauthorized user, signing out')
+          toast.error('You do not have permission to access the invoice page')
+          await supabase.auth.signOut()
+        }
+      } else {
+        console.log('No session from hash fragment')
+        toast.error('Failed to authenticate from token')
+      }
+    } catch (error: any) {
+      console.error('Error processing hash login:', error)
+      toast.error(`Login failed: ${error.message || 'Unknown error'}`)
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
 
   const handleLogin = async () => {
     try {
@@ -28,7 +99,7 @@ export function LoginButton() {
           auth: {
             autoRefreshToken: true,
             persistSession: true,
-            detectSessionInUrl: false, // Disable auto detection to prevent issues
+            detectSessionInUrl: false, // Disable auto detection for initial login
           }
         }
       )
@@ -54,7 +125,7 @@ export function LoginButton() {
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-          },
+          }
         },
       })
       
