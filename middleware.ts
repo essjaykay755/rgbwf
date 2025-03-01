@@ -12,8 +12,16 @@ export async function middleware(req: NextRequest) {
 
   // Check if accessing invoice page
   if (req.nextUrl.pathname.startsWith('/invoice')) {
+    // If not logged in, redirect to login page
+    if (!session) {
+      // Store the original URL to redirect back after login
+      const redirectUrl = new URL('/auth/login', req.url)
+      redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
+    
     // If user is logged in but not authorized, redirect to home
-    if (session && session.user.email !== 'rgbwfoundation@gmail.com') {
+    if (session.user.email !== 'rgbwfoundation@gmail.com') {
       return NextResponse.redirect(new URL('/', req.url))
     }
   }

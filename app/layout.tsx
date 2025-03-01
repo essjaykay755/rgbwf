@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
+import AdminLink from "@/components/AdminLink"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -60,6 +61,7 @@ export default function RootLayout({
         <Navbar />
         <main className="flex-grow pt-20">{children}</main>
         <Footer />
+        <AdminLink />
       </body>
     </html>
   )
