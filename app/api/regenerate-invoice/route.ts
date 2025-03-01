@@ -85,10 +85,6 @@ async function regenerateInvoice(serialNumber: string, invoiceData: any) {
   try {
     console.log('Regenerating PDF for invoice:', serialNumber)
     
-    // Get the base URL for assets
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://rgbwf.vercel.app'
-    console.log('Using base URL for assets:', baseUrl)
-    
     // Create the PDF
     const pdfBuffer = await renderToBuffer(
       InvoicePDF({
@@ -168,31 +164,8 @@ async function regenerateInvoice(serialNumber: string, invoiceData: any) {
     
     console.log('Signed URL generated for regenerated PDF')
     
-    // Instead of redirecting, return the PDF with proper headers
-    try {
-      const response = await fetch(urlData.signedUrl);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
-      }
-      
-      const pdfBuffer = await response.arrayBuffer();
-      
-      // Create a response with the PDF content and appropriate headers
-      const headers = new Headers();
-      headers.set('Content-Type', 'application/pdf');
-      headers.set('Content-Disposition', `attachment; filename="${serialNumber}.pdf"`);
-      
-      return new NextResponse(pdfBuffer, {
-        status: 200,
-        headers
-      });
-    } catch (fetchError) {
-      console.error('Error fetching PDF from signed URL:', fetchError);
-      
-      // Fall back to redirect if fetching fails
-      return NextResponse.redirect(urlData.signedUrl);
-    }
+    // Redirect to the signed URL for direct download
+    return NextResponse.redirect(urlData.signedUrl)
   } catch (error) {
     console.error('Error in regenerateInvoice function:', error)
     return NextResponse.json({ 

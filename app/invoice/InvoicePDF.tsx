@@ -167,15 +167,15 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
   // Use a smaller background logo or none at all if causing issues
   const showBackgroundLogo = true; // Set to true to enable background logo
   
-  // Simple and reliable base64 logo (small red square)
-  const logoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QA/wD/AP+gvaeTAAAAB3RJTUUH5gsdDjsqT6bSkwAAABRJREFUSMdjYBgFo2AUjIJRMNQAABQ4AAE4OMYKAAAAAElFTkSuQmCC';
+  // Use absolute paths for images to avoid issues
+  const logoPath = '/logoonly.png';
 
   return (
     <Document {...props}>
       <Page size="A5" orientation="landscape" style={styles.page}>
         {/* Background logo with low opacity - centered on the page */}
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
-          {showBackgroundLogo && <Image src={logoBase64} style={{ width: 250, opacity: 0.03 }} />}
+          {showBackgroundLogo && <Image src={logoPath} style={{ width: 250, opacity: 0.03 }} />}
         </View>
         
         <View style={styles.header}>
@@ -212,7 +212,7 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
           <View style={styles.rightSection}>
             <View style={styles.orgDetails}>
               {/* Logo with full opacity */}
-              <Image src={logoBase64} style={styles.orgLogo} />
+              <Image src={logoPath} style={styles.orgLogo} />
               <View style={styles.orgDetailsText}>
                 <Text style={styles.orgName}>RGB Welfare Foundation</Text>
                 <Text style={styles.text}>P-348, Basunagar Gate No 1</Text>

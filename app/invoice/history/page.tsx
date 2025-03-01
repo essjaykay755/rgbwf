@@ -170,28 +170,23 @@ export default function InvoiceHistoryPage() {
 
   const downloadInvoice = async (serialNumber: string) => {
     try {
-      const toastId = 'download-toast';
-      toast.loading('Preparing invoice for download...', { id: toastId });
+      toast.loading('Preparing invoice for download...', { id: 'download-toast' })
       
-      // Create a hidden iframe to handle the download
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
+      // Use the server-side download endpoint
+      const downloadUrl = `/api/download-invoice?serialNumber=${serialNumber}`
       
-      // Set the iframe source to the download API endpoint
-      iframe.src = `/api/download-invoice?serialNumber=${serialNumber}`;
+      // Open the download URL in a new tab
+      window.open(downloadUrl, '_blank')
       
-      // Remove the iframe after a delay to ensure download starts
+      // Dismiss the loading toast and show success
       setTimeout(() => {
-        if (iframe && iframe.parentNode) {
-          iframe.parentNode.removeChild(iframe);
-        }
-        toast.dismiss(toastId);
-        toast.success('Invoice download started');
-      }, 2000);
+        toast.dismiss('download-toast')
+        toast.success('Invoice download started')
+      }, 1000)
     } catch (error) {
-      console.error('Error initiating invoice download:', error);
-      toast.error('Failed to download invoice: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      toast.dismiss('download-toast')
+      console.error('Error initiating invoice download:', error)
+      toast.error('Failed to download invoice: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
   }
 
