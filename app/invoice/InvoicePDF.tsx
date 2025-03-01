@@ -167,9 +167,12 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
   // Use a smaller background logo or none at all if causing issues
   const showBackgroundLogo = true; // Set to true to enable background logo
   
-  // Use absolute URLs for images to ensure they work in both preview and downloaded PDFs
+  // Determine if we're in a browser environment (for preview) or server environment (for PDF generation)
+  const isBrowser = typeof window !== 'undefined';
+  
+  // Use relative path for browser preview and absolute URL for server-side rendering
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rgbwf.org';
-  const logoPath = `${baseUrl}/logoonly.png`;
+  const logoPath = isBrowser ? '/logoonly.png' : `${baseUrl}/logoonly.png`;
 
   return (
     <Document {...props}>
