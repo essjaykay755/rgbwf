@@ -11,6 +11,17 @@ const styles = StyleSheet.create({
     padding: 15,
     fontFamily: 'Noto Sans',
     backgroundColor: '#ffffff',
+    position: 'relative',
+  },
+  backgroundLogo: {
+    position: 'absolute',
+    width: '70%',
+    height: 'auto',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    opacity: 0.05,
+    zIndex: -1,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +32,7 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   logo: {
-    width: 150,
+    width: 80,
     height: 80,
     objectFit: 'contain',
     marginBottom: 5,
@@ -33,6 +44,16 @@ const styles = StyleSheet.create({
   orgDetails: {
     marginBottom: 10,
     fontSize: 9,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  orgDetailsText: {
+    marginLeft: 10,
+  },
+  orgLogo: {
+    width: 50,
+    height: 50,
+    objectFit: 'contain',
   },
   orgName: {
     fontSize: 12,
@@ -137,6 +158,9 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
   return (
     <Document {...props}>
       <Page size="A5" orientation="landscape" style={styles.page}>
+        {/* Background logo with low opacity */}
+        <Image src="/logoonly.svg" style={styles.backgroundLogo} />
+        
         <View style={styles.header}>
           <View style={styles.logoSection}>
             <Text style={styles.orgNameHeader}>RGB Welfare Foundation</Text>
@@ -170,10 +194,14 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
 
           <View style={styles.rightSection}>
             <View style={styles.orgDetails}>
-              <Text style={styles.orgName}>RGB Welfare Foundation</Text>
-              <Text style={styles.text}>P-348, Basunagar Gate No 1</Text>
-              <Text style={styles.text}>Madhyamgram, Kolkata 700129</Text>
-              <Text style={styles.text}>India</Text>
+              {/* Logo with full opacity */}
+              <Image src="/logoonly.svg" style={styles.orgLogo} />
+              <View style={styles.orgDetailsText}>
+                <Text style={styles.orgName}>RGB Welfare Foundation</Text>
+                <Text style={styles.text}>P-348, Basunagar Gate No 1</Text>
+                <Text style={styles.text}>Madhyamgram, Kolkata 700129</Text>
+                <Text style={styles.text}>India</Text>
+              </View>
             </View>
           </View>
         </View>
