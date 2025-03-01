@@ -85,6 +85,10 @@ async function regenerateInvoice(serialNumber: string, invoiceData: any) {
   try {
     console.log('Regenerating PDF for invoice:', serialNumber)
     
+    // Get the base URL for assets
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://rgbwf.vercel.app'
+    console.log('Using base URL for assets:', baseUrl)
+    
     // Create the PDF
     const pdfBuffer = await renderToBuffer(
       InvoicePDF({
