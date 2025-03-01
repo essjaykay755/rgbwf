@@ -1,12 +1,25 @@
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
+import { useState } from 'react'
 
 export function LoginButton() {
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
+
   const handleLogin = async () => {
     try {
+      setIsLoggingIn(true)
+      console.log('Starting login process')
+      
+      // Clear any existing session first
+      const { error: signOutError } = await supabase.auth.signOut()
+      if (signOutError) {
+        console.warn('Error signing out before login:', signOutError)
+      }
+      
       // Use more secure authentication
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('Initiating OAuth login with Google')
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -18,9 +31,15 @@ export function LoginButton() {
         },
       })
       
-      if (error) throw error
+      if (error) {
+        console.error('Error initiating OAuth login:', error)
+        throw error
+      }
+      
+      console.log('OAuth login initiated successfully, URL:', data?.url)
     } catch (error) {
       console.error('Error logging in:', error)
+      setIsLoggingIn(false)
     }
   }
 
@@ -35,6 +54,7 @@ export function LoginButton() {
       />
       <Button 
         onClick={handleLogin}
+        disabled={isLoggingIn}
         className="flex items-center gap-2 bg-white text-gray-800 hover:bg-gray-100 border border-gray-300"
       >
         <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
@@ -45,7 +65,7 @@ export function LoginButton() {
             <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/>
           </g>
         </svg>
-        Sign in with Google
+        {isLoggingIn ? 'Signing in...' : 'Sign in with Google'}
       </Button>
     </div>
   )

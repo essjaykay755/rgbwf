@@ -14,11 +14,13 @@ export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.startsWith('/invoice')) {
     // If not logged in, redirect to home
     if (!session) {
+      console.log('No session found, redirecting to home')
       return NextResponse.redirect(new URL('/', req.url))
     }
     
     // If user is logged in but not authorized, redirect to home
-    if (session && session.user.email !== 'rgbwfoundation@gmail.com') {
+    if (session.user.email !== 'rgbwfoundation@gmail.com') {
+      console.log('User not authorized, redirecting to home')
       return NextResponse.redirect(new URL('/', req.url))
     }
   }
