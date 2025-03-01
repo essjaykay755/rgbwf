@@ -33,35 +33,14 @@ export async function middleware(req: NextRequest) {
       if (!session) {
         console.log('Middleware: No session found, redirecting to login')
         
-        // Check if the user has had issues with the login page
-        const cookies = req.cookies
-        const loginAttempts = cookies.get('login_attempts')?.value
-        
         // Create the redirect URL with the original URL as a parameter
-        const redirectUrl = new URL(
-          loginAttempts && parseInt(loginAttempts) > 2 
-            ? '/auth/login-fallback' 
-            : '/auth/login', 
-          req.url
-        )
+        const redirectUrl = new URL('/auth/login', req.url)
         
         // Add the redirect target as a query parameter
         redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
         
-        // Create the response
+        // Create the response with cache control headers
         const response = NextResponse.redirect(redirectUrl)
-        
-        // Set a cookie to track login attempts if using the main login page
-        if (!loginAttempts || parseInt(loginAttempts) <= 2) {
-          const attempts = loginAttempts ? parseInt(loginAttempts) + 1 : 1
-          response.cookies.set('login_attempts', attempts.toString(), { 
-            path: '/',
-            maxAge: 60 * 60 * 24, // 24 hours
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax'
-          })
-        }
         
         // Add cache control headers to prevent caching
         response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
@@ -86,6 +65,16 @@ export async function middleware(req: NextRequest) {
       res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
       res.headers.set('Pragma', 'no-cache')
       res.headers.set('Expires', '0')
+      
+      // Set a cookie to indicate the session was verified by middleware
+      res.cookies.set('middleware_verified', 'true', {
+        path: '/',
+        maxAge: 60 * 60 * 24, // 24 hours
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      })
+      
       return res
     }
   } catch (error) {

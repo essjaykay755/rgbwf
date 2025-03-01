@@ -9,7 +9,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    storageKey: 'supabase.auth.token',
+    flowType: 'pkce',
     storage: {
       getItem: (key) => {
         if (typeof window === 'undefined') {
@@ -17,28 +17,53 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         }
         
         try {
+          // Try to get from localStorage first
           const value = window.localStorage.getItem(key)
-          return value ? JSON.parse(value) : null
+          if (value) {
+            return JSON.parse(value)
+          }
+          
+          // If not in localStorage, try to get from cookies
+          const cookies = document.cookie.split(';')
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim()
+            if (cookie.startsWith(key + '=')) {
+              const cookieValue = decodeURIComponent(cookie.substring(key.length + 1))
+              return JSON.parse(cookieValue)
+            }
+          }
+          return null
         } catch (error) {
-          console.error('Error reading from localStorage:', error)
+          console.error('Error reading from storage:', error)
           return null
         }
       },
       setItem: (key, value) => {
         if (typeof window !== 'undefined') {
           try {
+            // Store in both localStorage and cookies for redundancy
             window.localStorage.setItem(key, JSON.stringify(value))
+            
+            // Also set as a cookie with a long expiry
+            const valueStr = encodeURIComponent(JSON.stringify(value))
+            const date = new Date()
+            date.setTime(date.getTime() + (7 * 24 * 60 * 60 * 1000)) // 7 days
+            document.cookie = `${key}=${valueStr}; expires=${date.toUTCString()}; path=/; SameSite=Lax`
           } catch (error) {
-            console.error('Error writing to localStorage:', error)
+            console.error('Error writing to storage:', error)
           }
         }
       },
       removeItem: (key) => {
         if (typeof window !== 'undefined') {
           try {
+            // Remove from localStorage
             window.localStorage.removeItem(key)
+            
+            // Remove from cookies by setting an expired date
+            document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax`
           } catch (error) {
-            console.error('Error removing from localStorage:', error)
+            console.error('Error removing from storage:', error)
           }
         }
       },
@@ -110,8 +135,9 @@ export const signOut = async () => {
         
         // Also clear session cookies by setting expired cookies
         document.cookie = 'session_verified=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+        document.cookie = 'supabase.auth.token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
       } catch (error) {
-        console.error('Error clearing local storage during sign out:', error)
+        console.error('Error clearing storage during sign out:', error)
       }
     }
   } catch (error) {

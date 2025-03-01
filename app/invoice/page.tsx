@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { supabase, signOut } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { debugAuthState } from '@/lib/debug'
 import { PDFViewer, PDFDownloadLink, pdf } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,7 @@ import { InvoicePDF } from './InvoicePDF'
 import { useRouter } from 'next/navigation'
 import { LoginButton } from '@/components/ui/LoginButton'
 import { LogOut } from 'lucide-react'
+import { useAuth } from '@/components/AuthProvider'
 
 const invoiceSchema = z.object({
   donorName: z.string().min(1, 'Donor name is required'),
@@ -31,90 +32,23 @@ type InvoiceFormData = z.infer<typeof invoiceSchema>
 export default function InvoicePage() {
   const [previewData, setPreviewData] = useState<InvoiceFormData | null>(null)
   const [loading, setLoading] = useState(false)
-  const [user, setUser] = useState<any>(null)
-  const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading')
   const router = useRouter()
+  
+  // Use the auth context instead of managing auth state locally
+  const { user, session, isLoading, isAuthenticated, isAuthorized, signOut } = useAuth()
 
-  // Set up auth state listener
+  // Debug auth state on component mount
   useEffect(() => {
-    // Debug auth state on component mount
     debugAuthState().catch(error => {
       console.error('Error in debug auth state:', error)
     })
-
-    // Initial session check
-    const checkSession = async () => {
-      try {
-        console.log('Invoice page: Checking initial session')
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Error checking session in invoice page:', error)
-          setAuthStatus('unauthenticated')
-          return
-        }
-        
-        if (session?.user?.email === 'rgbwfoundation@gmail.com') {
-          console.log('Invoice page: User is authenticated and authorized')
-          setUser(session.user)
-          setAuthStatus('authenticated')
-        } else if (session) {
-          // User is logged in but not authorized
-          console.log('Invoice page: User is authenticated but not authorized')
-          setAuthStatus('unauthenticated')
-          // Redirect to home page for unauthorized users
-          window.location.href = '/'
-        } else {
-          console.log('Invoice page: User is not authenticated')
-          setAuthStatus('unauthenticated')
-          // Only redirect if we're sure there's no session
-          // Let the middleware handle the redirect instead of doing it here
-        }
-      } catch (error) {
-        console.error('Error checking session in invoice page:', error)
-        setAuthStatus('unauthenticated')
-      }
+    
+    // If not authorized after loading, redirect to home
+    if (!isLoading && !isAuthorized) {
+      console.log('Invoice page: User not authorized, redirecting to home')
+      router.push('/')
     }
-
-    checkSession()
-
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Invoice page: Auth state changed:', event)
-        
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          if (session?.user?.email === 'rgbwfoundation@gmail.com') {
-            console.log('Invoice page: User signed in and authorized')
-            setUser(session.user)
-            setAuthStatus('authenticated')
-          } else {
-            console.log('Invoice page: User signed in but not authorized')
-            setAuthStatus('unauthenticated')
-            // Not authorized, redirect to home
-            window.location.href = '/'
-          }
-        } else if (event === 'SIGNED_OUT') {
-          console.log('Invoice page: User signed out')
-          setUser(null)
-          setAuthStatus('unauthenticated')
-          // Signed out, redirect to login - let middleware handle this
-          // Don't redirect here to avoid race conditions
-        } else if (event === 'USER_UPDATED') {
-          // Just update the user object if it's the same user
-          if (session?.user?.email === 'rgbwfoundation@gmail.com') {
-            console.log('Invoice page: User updated and still authorized')
-            setUser(session.user)
-            setAuthStatus('authenticated')
-          }
-        }
-      }
-    )
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
+  }, [isLoading, isAuthorized, router])
 
   const {
     register,
@@ -133,14 +67,6 @@ export default function InvoicePage() {
       setPreviewData(data)
 
       console.log('Submitting form data:', data)
-      
-      // Get the current session
-      const { data: { session }, error } = await supabase.auth.getSession()
-      
-      if (error) {
-        console.error('Error getting session for invoice submission:', error)
-        throw new Error('Failed to get authentication session')
-      }
       
       if (!session) {
         throw new Error('You must be logged in to generate an invoice')
@@ -181,22 +107,15 @@ export default function InvoicePage() {
   const handleLogout = async () => {
     try {
       console.log('Logging out user...')
-      // Use the signOut function from lib/supabase.ts which has enhanced cleanup
       await signOut()
-      console.log('User logged out, redirecting...')
-      
-      // Set a small delay to ensure all cleanup is complete before redirecting
-      setTimeout(() => {
-        window.location.href = '/'
-        toast.success('Logged out successfully')
-      }, 100)
+      toast.success('Logged out successfully')
     } catch (error) {
       console.error('Error logging out:', error)
       toast.error('Failed to log out')
     }
   }
 
-  if (authStatus === 'loading') {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p>Loading invoice system...</p>
@@ -204,8 +123,7 @@ export default function InvoicePage() {
     )
   }
 
-  if (authStatus === 'unauthenticated') {
-    // This should rarely be seen as middleware should handle redirects
+  if (!isAuthorized) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p>Redirecting to login...</p>
@@ -213,7 +131,7 @@ export default function InvoicePage() {
     )
   }
 
-  // Only render the form if authenticated
+  // Only render the form if authenticated and authorized
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">

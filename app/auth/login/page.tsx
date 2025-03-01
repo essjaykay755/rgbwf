@@ -3,10 +3,14 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { debugAuthState } from '@/lib/debug'
+import { useAuth } from '@/components/AuthProvider'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { isAuthenticated, isAuthorized } = useAuth()
+  const router = useRouter()
   
   // Get the redirectTo from the URL directly
   const getRedirectTo = () => {
@@ -23,22 +27,12 @@ export default function LoginPage() {
       console.error('Error in debug auth state:', error)
     })
     
-    // Check if already logged in
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        
-        if (session?.user?.email === 'rgbwfoundation@gmail.com') {
-          console.log('Login page: User already logged in, redirecting to:', redirectTo)
-          window.location.href = redirectTo
-        }
-      } catch (error) {
-        console.error('Error checking session in login page:', error)
-      }
+    // If already authenticated and authorized, redirect to the target page
+    if (isAuthenticated && isAuthorized) {
+      console.log('Login page: User already logged in, redirecting to:', redirectTo)
+      router.push(redirectTo)
     }
-    
-    checkSession()
-  }, [redirectTo])
+  }, [isAuthenticated, isAuthorized, redirectTo, router])
 
   const handleLogin = async () => {
     try {
