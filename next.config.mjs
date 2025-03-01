@@ -35,8 +35,8 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
-  // Ensure all routes are treated as dynamic server-side rendered routes
-  output: 'server',
+  // Use a valid output option - 'standalone' for server-side rendering with better optimization
+  output: 'standalone',
   // Disable static optimization for all pages
   staticPageGenerationTimeout: 0,
 }

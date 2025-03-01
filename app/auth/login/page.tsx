@@ -1,16 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { LoginButton } from '@/components/ui/LoginButton'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient, getSession, signOut } from '@/lib/supabase'
 import { toast } from 'sonner'
 
-export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+// Component to handle search params separately
+function LoginErrorHandler() {
   const searchParams = useSearchParams()
-
+  
   useEffect(() => {
     // Check for error parameters
     const errorParam = searchParams?.get('error')
@@ -33,6 +32,13 @@ export default function LoginPage() {
       }
     }
   }, [searchParams])
+  
+  return null
+}
+
+export default function LoginPage() {
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -95,6 +101,11 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-8 p-4">
+      {/* Wrap the component that uses useSearchParams in Suspense */}
+      <Suspense fallback={null}>
+        <LoginErrorHandler />
+      </Suspense>
+      
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 border border-gray-100">
         <h1 className="text-2xl font-bold text-center mb-6">Invoice Generator Login</h1>
         <p className="text-gray-600 mb-8 text-center">
