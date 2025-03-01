@@ -1,52 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/components/AuthProvider'
 
 export default function AdminLink() {
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Initial session check
-    const checkUser = async () => {
-      try {
-        setLoading(true)
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Error checking session in AdminLink:', error)
-          return
-        }
-        
-        setUser(session?.user || null)
-      } catch (error) {
-        console.error('Error checking user in AdminLink:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    checkUser()
-
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('AdminLink: Auth state changed:', event)
-        setUser(session?.user || null)
-        setLoading(false)
-      }
-    )
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
+  const { user, isLoading, isAuthorized } = useAuth()
 
   // If loading or not authorized, don't show anything
-  if (loading || !user || user.email !== 'rgbwfoundation@gmail.com') {
+  if (isLoading || !isAuthorized) {
     return null
   }
 
