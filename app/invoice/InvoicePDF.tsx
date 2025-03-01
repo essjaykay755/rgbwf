@@ -16,12 +16,12 @@ const styles = StyleSheet.create({
   backgroundLogo: {
     position: 'absolute',
     width: 250,
-    height: 250,
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     opacity: 0.03,
     zIndex: -1,
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -49,10 +49,11 @@ const styles = StyleSheet.create({
   },
   orgDetailsText: {
     marginLeft: 10,
+    flex: 1,
   },
   orgLogo: {
     width: 40,
-    height: 40,
+    objectFit: 'contain',
   },
   orgName: {
     fontSize: 12,
