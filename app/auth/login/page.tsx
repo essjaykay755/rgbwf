@@ -22,7 +22,10 @@ function LoginErrorHandler() {
           toast.error('There was a problem with the authentication process. Please try again.')
           break
         case 'no_code':
-          toast.error('No authentication code received. Please try again.')
+          // Don't show error for no_code when there's a hash fragment
+          if (typeof window !== 'undefined' && !window.location.hash.includes('access_token')) {
+            toast.error('No authentication code received. Please try again.')
+          }
           break
         case 'no_session':
           toast.error('Failed to create a session. Please try again.')
@@ -45,6 +48,13 @@ export default function LoginPage() {
       try {
         setIsLoading(true)
         console.log('Checking authentication in login page')
+        
+        // If we have a hash fragment with access_token, let the LoginButton component handle it
+        if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
+          console.log('Hash fragment detected in login page, letting LoginButton handle it')
+          setIsLoading(false)
+          return
+        }
         
         // Initialize the browser client
         const supabase = createBrowserClient()

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { createHashFragmentClient } from '@/lib/supabase'
 
 export function LoginButton() {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
@@ -10,73 +11,46 @@ export function LoginButton() {
 
   // Check for hash fragments on component mount
   useEffect(() => {
-    // If we have a hash fragment with access_token, we need to handle it
-    if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
-      console.log('Hash fragment with access token detected')
-      handleHashLogin()
-    }
-  }, [])
-
-  // Handle login from hash fragment
-  const handleHashLogin = async () => {
-    try {
-      console.log('Processing hash fragment login')
-      setIsLoggingIn(true)
-      
-      // Get environment variables
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      
-      if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error('Supabase environment variables are not set')
-      }
-      
-      // Initialize Supabase client
-      const supabase = createClient(
-        supabaseUrl,
-        supabaseAnonKey,
-        {
-          auth: {
-            autoRefreshToken: true,
-            persistSession: true,
-            detectSessionInUrl: true, // Enable detection for hash fragments
-          }
-        }
-      )
-      
-      // Get the current session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
-      if (sessionError) {
-        console.error('Error getting session from hash:', sessionError)
-        toast.error(`Session error: ${sessionError.message}`)
-        return
-      }
-      
-      if (session) {
-        console.log('Session obtained from hash fragment')
+    const handleHashFragment = async () => {
+      // If we have a hash fragment with access_token, we need to handle it
+      if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
+        console.log('Hash fragment with access token detected')
         
-        // Check if user is authorized
-        if (session.user.email === 'rgbwfoundation@gmail.com') {
-          console.log('Authorized user, redirecting to invoice page')
-          toast.success('Login successful!')
-          router.push('/invoice')
-        } else {
-          console.log('Unauthorized user, signing out')
-          toast.error('You do not have permission to access the invoice page')
-          await supabase.auth.signOut()
+        try {
+          setIsLoggingIn(true)
+          console.log('Processing hash fragment login')
+          
+          // Extract the access token from the hash
+          const hashParams = new URLSearchParams(
+            window.location.hash.substring(1) // remove the # character
+          )
+          const accessToken = hashParams.get('access_token')
+          const refreshToken = hashParams.get('refresh_token')
+          
+          if (!accessToken) {
+            console.error('No access token found in hash fragment')
+            toast.error('Authentication failed: No access token found')
+            return
+          }
+          
+          console.log('Access token found in hash fragment')
+          
+          // Redirect to our hash route handler with the tokens as query parameters
+          const hashRoute = `/auth/hash?access_token=${encodeURIComponent(accessToken)}${refreshToken ? `&refresh_token=${encodeURIComponent(refreshToken)}` : ''}`
+          console.log('Redirecting to hash route:', hashRoute)
+          
+          // Use window.location for a full page reload to ensure clean state
+          window.location.href = hashRoute
+        } catch (error: any) {
+          console.error('Error processing hash login:', error)
+          toast.error(`Login failed: ${error.message || 'Unknown error'}`)
+          setIsLoggingIn(false)
         }
-      } else {
-        console.log('No session from hash fragment')
-        toast.error('Failed to authenticate from token')
       }
-    } catch (error: any) {
-      console.error('Error processing hash login:', error)
-      toast.error(`Login failed: ${error.message || 'Unknown error'}`)
-    } finally {
-      setIsLoggingIn(false)
     }
-  }
+    
+    handleHashFragment()
+  }, [router])
 
   const handleLogin = async () => {
     try {
