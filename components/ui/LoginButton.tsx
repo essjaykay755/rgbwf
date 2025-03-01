@@ -5,6 +5,7 @@ import Image from 'next/image'
 export function LoginButton() {
   const handleLogin = async () => {
     try {
+      // Use more secure authentication
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -13,8 +14,10 @@ export function LoginButton() {
             access_type: 'offline',
             prompt: 'consent',
           },
+          skipBrowserRedirect: false, // Ensure browser redirects
         },
       })
+      
       if (error) throw error
     } catch (error) {
       console.error('Error logging in:', error)
