@@ -15,8 +15,8 @@ const styles = StyleSheet.create({
   },
   backgroundLogo: {
     position: 'absolute',
-    width: '70%',
-    height: 'auto',
+    width: 200,
+    height: 200,
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
@@ -51,9 +51,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   orgLogo: {
-    width: 50,
-    height: 50,
-    objectFit: 'contain',
+    width: 30,
+    height: 30,
   },
   orgName: {
     fontSize: 12,
@@ -155,11 +154,14 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
   // Generate a unique invoice number
   const invoiceNumber = `INV-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
 
+  // Use a smaller background logo or none at all if causing issues
+  const showBackgroundLogo = false; // Set to false to disable background logo
+
   return (
     <Document {...props}>
       <Page size="A5" orientation="landscape" style={styles.page}>
-        {/* Background logo with low opacity */}
-        <Image src="/logoonly.svg" style={styles.backgroundLogo} />
+        {/* Background logo with low opacity - conditionally rendered */}
+        {showBackgroundLogo && <Image src="/logoonly.png" style={styles.backgroundLogo} />}
         
         <View style={styles.header}>
           <View style={styles.logoSection}>
@@ -195,7 +197,7 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
           <View style={styles.rightSection}>
             <View style={styles.orgDetails}>
               {/* Logo with full opacity */}
-              <Image src="/logoonly.svg" style={styles.orgLogo} />
+              <Image src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/logoonly.png`} style={styles.orgLogo} />
               <View style={styles.orgDetailsText}>
                 <Text style={styles.orgName}>RGB Welfare Foundation</Text>
                 <Text style={styles.text}>P-348, Basunagar Gate No 1</Text>

@@ -324,7 +324,12 @@ export default function InvoicePage() {
           <h2 className="text-xl font-semibold mb-4">Invoice Preview</h2>
           {previewDataSafe ? (
             <div className="h-[600px] overflow-hidden rounded border border-gray-300">
-              <PDFViewer width="100%" height="100%" className="rounded">
+              <PDFViewer 
+                width="100%" 
+                height="100%" 
+                className="rounded"
+                showToolbar={false}
+              >
                 <InvoicePDF data={previewDataSafe} />
               </PDFViewer>
             </div>
