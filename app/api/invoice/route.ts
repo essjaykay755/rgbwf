@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
         const { data: urlData, error: urlError } = await serviceClient
           .storage
           .from('invoices')
-          .createSignedUrl(`${serialNumber}.pdf`, 60 * 60) // 1 hour expiry
+          .createSignedUrl(`${serialNumber}.pdf`, 60 * 60 * 24) // 24 hour expiry for better user experience
         
         if (urlError) {
           console.error('Error getting signed URL:', urlError)
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
         }
         
         signedUrl = urlData.signedUrl
-        console.log('Signed URL generated successfully')
+        console.log('Signed URL generated successfully:', signedUrl.substring(0, 100) + '...')
       } catch (urlErr) {
         console.error('Exception generating signed URL:', urlErr)
         return NextResponse.json({ 

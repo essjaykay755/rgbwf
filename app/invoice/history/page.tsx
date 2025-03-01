@@ -170,11 +170,11 @@ export default function InvoiceHistoryPage() {
 
   const downloadInvoice = async (serialNumber: string) => {
     try {
-      toast.loading('Preparing invoice for download...')
+      toast.loading('Preparing invoice for download...', { id: 'download-toast' })
       
       const supabase = createBrowserClient()
       if (!supabase) {
-        toast.dismiss()
+        toast.dismiss('download-toast')
         console.error('Failed to initialize Supabase client')
         toast.error('Error: Failed to initialize database connection')
         return
@@ -187,33 +187,40 @@ export default function InvoiceHistoryPage() {
         .createSignedUrl(`${serialNumber}.pdf`, 60 * 60) // 60 minutes expiry
       
       if (error) {
-        toast.dismiss()
+        toast.dismiss('download-toast')
         console.error('Error getting signed URL:', error)
         toast.error('Failed to generate download link: ' + error.message)
         return
       }
       
       if (!data || !data.signedUrl) {
-        toast.dismiss()
+        toast.dismiss('download-toast')
         console.error('No signed URL returned')
         toast.error('Failed to generate download link. File may not exist.')
         return
       }
       
-      console.log('Generated signed URL for download')
+      console.log('Generated signed URL for download:', data.signedUrl)
       
       // Create a temporary link element to trigger the download
       const link = document.createElement('a')
       link.href = data.signedUrl
-      link.download = `invoice-${serialNumber}.pdf`
+      link.setAttribute('download', `invoice-${serialNumber}.pdf`)
+      link.setAttribute('target', '_blank')
+      link.style.display = 'none'
       document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
       
-      toast.dismiss()
-      toast.success('Invoice download started')
+      // Trigger the download
+      link.click()
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(link)
+        toast.dismiss('download-toast')
+        toast.success('Invoice download started')
+      }, 100)
     } catch (error) {
-      toast.dismiss()
+      toast.dismiss('download-toast')
       console.error('Error downloading invoice:', error)
       toast.error('Failed to download invoice: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
