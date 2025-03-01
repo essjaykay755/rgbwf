@@ -2,6 +2,7 @@ import { createBrowserClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 
 export function LoginButton() {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
@@ -21,10 +22,13 @@ export function LoginButton() {
       const browserClient = createBrowserClient()
       if (!browserClient) {
         console.error('Browser client initialization failed')
-        throw new Error('Browser client initialization failed')
+        toast.error('Authentication system initialization failed')
+        setIsLoggingIn(false)
+        return
       }
       
       // Clear any existing session first
+      console.log('Clearing any existing session')
       const { error: signOutError } = await browserClient.auth.signOut()
       if (signOutError) {
         console.warn('Error signing out before login:', signOutError)
@@ -46,12 +50,15 @@ export function LoginButton() {
       
       if (error) {
         console.error('Error initiating OAuth login:', error)
+        toast.error('Failed to start login process')
         throw error
       }
       
       console.log('OAuth login initiated successfully, URL:', data?.url)
-    } catch (error) {
+      // The browser will be redirected by Supabase, so we don't need to do anything else here
+    } catch (error: any) {
       console.error('Error logging in:', error)
+      toast.error(`Login failed: ${error.message || 'Unknown error'}`)
       setIsLoggingIn(false)
     }
   }

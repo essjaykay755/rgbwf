@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { createBrowserClient } from '@/lib/supabase'
+import { createBrowserClient, getSession, getUser } from '@/lib/supabase'
 import { PDFViewer, PDFDownloadLink, pdf } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -45,70 +45,50 @@ export default function InvoicePage() {
 
     const checkUser = async () => {
       try {
-        // Get the browser client
-        const browserClient = createBrowserClient()
-        if (!browserClient) {
-          console.error('Browser client initialization failed')
-          setIsLoading(false)
+        setIsLoading(true)
+        console.log('Checking user in invoice page')
+        
+        // Get the session first
+        const session = await getSession()
+        
+        if (!session) {
+          console.log('No session found in invoice page, redirecting to home')
+          router.push('/')
           return
         }
-
-        console.log('Checking user in invoice page')
-        const { data: { user }, error } = await browserClient.auth.getUser()
         
-        if (error) {
-          console.error('Error getting user in invoice page:', error)
-          throw error
+        console.log('Session found in invoice page, user:', session.user.email)
+        
+        // Get the user details
+        const user = await getUser()
+        
+        if (!user) {
+          console.log('No user found in invoice page despite having session, redirecting to home')
+          router.push('/')
+          return
         }
         
-        if (user) {
-          console.log('User found in invoice page:', user.email)
-          setUser(user)
-        } else {
-          console.log('No user found in invoice page')
+        console.log('User found in invoice page:', user.email)
+        setUser(user)
+        
+        // Check if user is authorized
+        if (user.email !== 'rgbwfoundation@gmail.com') {
+          console.log('User not authorized, redirecting to home')
+          toast.error('You do not have permission to access this page')
+          router.push('/')
+          return
         }
       } catch (error) {
         console.error('Error checking user:', error)
+        toast.error('Error checking authentication status')
+        router.push('/')
       } finally {
         setIsLoading(false)
       }
     }
 
     checkUser()
-  }, [initialized])
-
-  // Function to check if the user is logged in
-  const checkUserLoggedIn = async () => {
-    try {
-      // Get the browser client
-      const browserClient = createBrowserClient()
-      if (!browserClient) {
-        toast.error('Browser client initialization failed')
-        return false
-      }
-      
-      const { data: { session }, error } = await browserClient.auth.getSession()
-      
-      if (error) {
-        console.error('Error checking session in invoice page:', error)
-        toast.error('Error checking login status')
-        return false
-      }
-      
-      if (!session) {
-        console.log('No session found in invoice page')
-        toast.error('You must be logged in to generate an invoice')
-        return false
-      }
-      
-      console.log('Session found in invoice page, user:', session.user.email)
-      return true
-    } catch (error) {
-      console.error('Error checking session:', error)
-      toast.error('Error checking login status')
-      return false
-    }
-  }
+  }, [initialized, router])
 
   const {
     register,
@@ -123,34 +103,20 @@ export default function InvoicePage() {
 
   const onSubmit = async (data: InvoiceFormData) => {
     try {
-      // Check if the user is logged in
-      const isLoggedIn = await checkUserLoggedIn()
-      if (!isLoggedIn) return
+      // Check if we have a session
+      const session = await getSession()
+      
+      if (!session) {
+        console.log('No session found when submitting form')
+        toast.error('Your session has expired. Please log in again.')
+        router.push('/')
+        return
+      }
 
       setLoading(true)
       setPreviewData(data)
 
       console.log('Submitting form data:', data)
-      
-      // Get the browser client
-      const browserClient = createBrowserClient()
-      if (!browserClient) {
-        throw new Error('Browser client initialization failed')
-      }
-      
-      // Get the current session
-      const { data: { session }, error: sessionError } = await browserClient.auth.getSession()
-      
-      if (sessionError) {
-        console.error('Error getting session for API call:', sessionError)
-        throw new Error('Error getting session')
-      }
-      
-      if (!session) {
-        throw new Error('You must be logged in to generate an invoice')
-      }
-      
-      console.log('Using session for API call, user:', session.user.email)
       
       const response = await fetch('/api/invoice', {
         method: 'POST',

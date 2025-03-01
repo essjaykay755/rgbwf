@@ -31,18 +31,46 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 })
 
 export const getUser = async () => {
-  const client = createBrowserClient() || supabase
-  const { data: { user }, error } = await client.auth.getUser()
-  if (error) {
-    throw error
+  try {
+    const client = createBrowserClient() || supabase
+    const { data: { user }, error } = await client.auth.getUser()
+    if (error) {
+      console.error('Error getting user:', error)
+      return null
+    }
+    return user
+  } catch (error) {
+    console.error('Exception getting user:', error)
+    return null
   }
-  return user
+}
+
+export const getSession = async () => {
+  try {
+    const client = createBrowserClient() || supabase
+    const { data: { session }, error } = await client.auth.getSession()
+    if (error) {
+      console.error('Error getting session:', error)
+      return null
+    }
+    return session
+  } catch (error) {
+    console.error('Exception getting session:', error)
+    return null
+  }
 }
 
 export const signOut = async () => {
-  const client = createBrowserClient() || supabase
-  const { error } = await client.auth.signOut()
-  if (error) {
+  try {
+    const client = createBrowserClient() || supabase
+    const { error } = await client.auth.signOut()
+    if (error) {
+      console.error('Error signing out:', error)
+      throw error
+    }
+    return true
+  } catch (error) {
+    console.error('Exception signing out:', error)
     throw error
   }
 }

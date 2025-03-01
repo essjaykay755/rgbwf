@@ -60,25 +60,36 @@ export default function AuthConfirmPage() {
               throw error
             }
             
-            console.log('Session set successfully, user:', data.user)
+            console.log('Session set successfully, user:', data?.user?.email)
             
-            // Get the user to verify the session was set
-            const { data: { user }, error: getUserError } = await browserClient.auth.getUser()
+            // Verify the session was set by getting the session
+            const { data: { session }, error: sessionError } = await browserClient.auth.getSession()
             
-            if (getUserError) {
-              console.error('Error getting user after setting session:', getUserError)
-              throw getUserError
+            if (sessionError) {
+              console.error('Error getting session after setting:', sessionError)
+              throw sessionError
             }
             
-            console.log('User retrieved successfully:', user)
+            if (!session) {
+              console.error('No session found after setting')
+              throw new Error('Failed to persist session')
+            }
+            
+            console.log('Session verified, user:', session.user.email)
             
             toast.success('Successfully signed in')
-            router.push('/invoice')
+            
+            // Small delay to ensure cookies are set before redirect
+            setTimeout(() => {
+              router.push('/invoice')
+            }, 500)
           } else {
             // No access token found, redirect to home
             console.warn('No access token found in hash fragment')
             setError('No access token found')
-            router.push('/')
+            setTimeout(() => {
+              router.push('/')
+            }, 2000)
           }
         } else {
           // No hash fragment, let the server-side handler work
@@ -91,6 +102,9 @@ export default function AuthConfirmPage() {
             if (sessionError) {
               console.error('Error checking session:', sessionError)
               setError('Error checking session')
+              setTimeout(() => {
+                router.push('/')
+              }, 2000)
               return
             }
             
@@ -102,15 +116,15 @@ export default function AuthConfirmPage() {
               setError('Authentication failed')
               setTimeout(() => {
                 router.push('/')
-              }, 3000)
+              }, 2000)
             }
             
             setIsProcessing(false)
           }, 2000)
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error handling auth callback:', error)
-        setError('Failed to sign in')
+        setError(`Failed to sign in: ${error.message || 'Unknown error'}`)
         toast.error('Failed to sign in')
         setTimeout(() => {
           router.push('/')

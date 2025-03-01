@@ -31,26 +31,27 @@ export async function GET(request: Request) {
       
       if (sessionError) {
         console.error('Error getting session after exchange:', sessionError)
-      } else if (sessionData?.session) {
-        console.log('Session verified after exchange, user:', sessionData.session.user.email)
-        
-        // Create a response that redirects to the invoice page
-        const response = NextResponse.redirect(new URL('/invoice', requestUrl.origin))
-        
-        // Return the response with the session cookie
-        return response
-      } else {
+        return NextResponse.redirect(new URL('/?error=session', requestUrl.origin))
+      } 
+      
+      if (!sessionData?.session) {
         console.warn('No session found after exchange')
+        return NextResponse.redirect(new URL('/?error=no_session', requestUrl.origin))
       }
+      
+      console.log('Session verified after exchange, user:', sessionData.session.user.email)
+      
+      // Create a response that redirects to the invoice page
+      const response = NextResponse.redirect(new URL('/invoice', requestUrl.origin))
+      
+      // Return the response with the session cookie
+      return response
     } catch (error) {
       console.error('Exception during code exchange:', error)
       return NextResponse.redirect(new URL('/?error=auth_exception', requestUrl.origin))
     }
   } else {
     console.warn('No code parameter found in callback URL')
+    return NextResponse.redirect(new URL('/?error=no_code', requestUrl.origin))
   }
-
-  // URL to redirect to after sign in process completes
-  console.log('Redirecting to invoice page after auth callback')
-  return NextResponse.redirect(new URL('/invoice', requestUrl.origin))
 } 
