@@ -8,21 +8,70 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    storageKey: 'supabase.auth.token',
+    storage: {
+      getItem: (key) => {
+        if (typeof window === 'undefined') {
+          return null
+        }
+        return JSON.parse(window.localStorage.getItem(key) || 'null')
+      },
+      setItem: (key, value) => {
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(key, JSON.stringify(value))
+        }
+      },
+      removeItem: (key) => {
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem(key)
+        }
+      },
+    },
   }
 })
 
 export const getUser = async () => {
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error) {
-    throw error
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error) {
+      console.error('Error getting user:', error)
+      return null
+    }
+    return user
+  } catch (error) {
+    console.error('Exception getting user:', error)
+    return null
   }
-  return user
+}
+
+export const getSession = async () => {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession()
+    if (error) {
+      console.error('Error getting session:', error)
+      return null
+    }
+    return session
+  } catch (error) {
+    console.error('Exception getting session:', error)
+    return null
+  }
 }
 
 export const signOut = async () => {
-  const { error } = await supabase.auth.signOut()
-  if (error) {
+  try {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('Error signing out:', error)
+      throw error
+    }
+    // Clear any local storage items related to auth
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('supabase.auth.token')
+    }
+  } catch (error) {
+    console.error('Exception signing out:', error)
     throw error
   }
 }

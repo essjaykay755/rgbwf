@@ -28,27 +28,36 @@ export async function GET(request: NextRequest) {
       throw exchangeError
     }
     
-    // Get the user to check if they're authorized
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    // Get the session directly after exchange to ensure it's fresh
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
     
-    if (userError) {
-      console.error('Error getting user:', userError)
-      throw userError
+    if (sessionError) {
+      console.error('Error getting session:', sessionError)
+      throw sessionError
+    }
+    
+    if (!session) {
+      console.error('No session found after exchange')
+      throw new Error('Authentication failed: No session created')
     }
     
     // If the user is rgbwfoundation@gmail.com, redirect to the specified page or invoice page
-    if (user && user.email === 'rgbwfoundation@gmail.com') {
+    if (session.user && session.user.email === 'rgbwfoundation@gmail.com') {
       // Add a cache-busting parameter to prevent browser caching issues
       const targetUrl = new URL(redirectTo, requestUrl.origin)
       targetUrl.searchParams.set('t', Date.now().toString())
       
       // Create a response with cache control headers
-      const response = NextResponse.redirect(targetUrl)
+      const response = NextResponse.redirect(targetUrl, {
+        // Use 303 See Other to ensure a GET request after POST
+        status: 303
+      })
       
       // Set cache control headers to prevent caching
-      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0')
       response.headers.set('Pragma', 'no-cache')
       response.headers.set('Expires', '0')
+      response.headers.set('Surrogate-Control', 'no-store')
       
       // Clear the login attempts cookie
       response.cookies.set('login_attempts', '', { 
@@ -61,14 +70,24 @@ export async function GET(request: NextRequest) {
     }
     
     // Otherwise, redirect to the homepage
-    const response = NextResponse.redirect(new URL('/?auth=unauthorized', requestUrl.origin))
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    const response = NextResponse.redirect(new URL('/?auth=unauthorized', requestUrl.origin), {
+      status: 303
+    })
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    response.headers.set('Surrogate-Control', 'no-store')
     return response
   } catch (error) {
     console.error('Error in auth callback:', error)
     // On error, redirect to login with an error parameter
-    const response = NextResponse.redirect(new URL('/auth/login-fallback?error=callback_error', requestUrl.origin))
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    const response = NextResponse.redirect(new URL('/auth/login-fallback?error=callback_error', requestUrl.origin), {
+      status: 303
+    })
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    response.headers.set('Surrogate-Control', 'no-store')
     return response
   }
 } 

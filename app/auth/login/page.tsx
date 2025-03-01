@@ -1,24 +1,61 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { debugAuthState } from '@/lib/debug'
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   
   // Get the redirectTo from the URL directly
-  const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
-  const redirectTo = params.get('redirectTo') || '/invoice'
+  const getRedirectTo = () => {
+    if (typeof window === 'undefined') return '/invoice'
+    const params = new URLSearchParams(window.location.search)
+    return params.get('redirectTo') || '/invoice'
+  }
+  
+  const redirectTo = getRedirectTo()
+  
+  useEffect(() => {
+    // Debug auth state on component mount
+    debugAuthState().catch(error => {
+      console.error('Error in debug auth state:', error)
+    })
+    
+    // Check if already logged in
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session?.user?.email === 'rgbwfoundation@gmail.com') {
+          console.log('Login page: User already logged in, redirecting to:', redirectTo)
+          window.location.href = redirectTo
+        }
+      } catch (error) {
+        console.error('Error checking session in login page:', error)
+      }
+    }
+    
+    checkSession()
+  }, [redirectTo])
 
   const handleLogin = async () => {
     try {
       setIsLoading(true)
+      setError(null)
+      
+      console.log('Login page: Starting Google OAuth flow with redirect to:', redirectTo)
+      
+      // Construct the callback URL with the redirectTo parameter
+      const callbackUrl = new URL('/auth/callback', window.location.origin)
+      callbackUrl.searchParams.set('redirectTo', redirectTo)
       
       // Simple direct OAuth call
-      await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`,
+          redirectTo: callbackUrl.toString(),
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -26,9 +63,16 @@ export default function LoginPage() {
         },
       })
       
+      if (error) {
+        console.error('Error initiating OAuth flow:', error)
+        setError(error.message)
+        setIsLoading(false)
+      }
+      
       // The OAuth flow will handle the redirect, so we don't need to do anything else
-    } catch (error) {
-      console.error('Error logging in:', error)
+    } catch (error: any) {
+      console.error('Exception during login:', error)
+      setError(error?.message || 'An unexpected error occurred')
       setIsLoading(false)
     }
   }
@@ -38,7 +82,18 @@ export default function LoginPage() {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">Sign In</h1>
         <p className="text-gray-600">Please sign in to access the invoice generation system</p>
+        {redirectTo && (
+          <p className="text-sm text-gray-500 mt-2">
+            You will be redirected to: {redirectTo}
+          </p>
+        )}
       </div>
+      
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
       
       <button 
         onClick={handleLogin}

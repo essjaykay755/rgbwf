@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { supabase } from '@/lib/supabase'
+import { debugAuthState } from '@/lib/debug'
 import { PDFViewer, PDFDownloadLink, pdf } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,19 +37,59 @@ export default function InvoicePage() {
 
   // Set up auth state listener
   useEffect(() => {
+    // Debug auth state on component mount
+    debugAuthState().catch(error => {
+      console.error('Error in debug auth state:', error)
+    })
+
+    // Initial session check
+    const checkSession = async () => {
+      try {
+        console.log('Invoice page: Checking initial session')
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('Error checking session in invoice page:', error)
+          setAuthStatus('unauthenticated')
+          return
+        }
+        
+        if (session?.user?.email === 'rgbwfoundation@gmail.com') {
+          console.log('Invoice page: User is authenticated and authorized')
+          setUser(session.user)
+          setAuthStatus('authenticated')
+        } else {
+          console.log('Invoice page: User is not authenticated or not authorized')
+          setAuthStatus('unauthenticated')
+          // Let the middleware handle the redirect
+          window.location.href = '/auth/login?redirectTo=/invoice'
+        }
+      } catch (error) {
+        console.error('Error checking session in invoice page:', error)
+        setAuthStatus('unauthenticated')
+      }
+    }
+
+    checkSession()
+
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Invoice page: Auth state changed:', event)
+        
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           if (session?.user?.email === 'rgbwfoundation@gmail.com') {
+            console.log('Invoice page: User signed in and authorized')
             setUser(session.user)
             setAuthStatus('authenticated')
           } else {
+            console.log('Invoice page: User signed in but not authorized')
             setAuthStatus('unauthenticated')
             // Not authorized, redirect to home
             window.location.href = '/'
           }
         } else if (event === 'SIGNED_OUT') {
+          console.log('Invoice page: User signed out')
           setUser(null)
           setAuthStatus('unauthenticated')
           // Signed out, redirect to login
@@ -56,26 +97,6 @@ export default function InvoicePage() {
         }
       }
     )
-
-    // Initial session check
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        
-        if (session?.user?.email === 'rgbwfoundation@gmail.com') {
-          setUser(session.user)
-          setAuthStatus('authenticated')
-        } else {
-          setAuthStatus('unauthenticated')
-          // Let the middleware handle the redirect
-        }
-      } catch (error) {
-        console.error('Error checking session:', error)
-        setAuthStatus('unauthenticated')
-      }
-    }
-
-    checkSession()
 
     return () => {
       subscription.unsubscribe()
@@ -101,7 +122,12 @@ export default function InvoicePage() {
       console.log('Submitting form data:', data)
       
       // Get the current session
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { session }, error } = await supabase.auth.getSession()
+      
+      if (error) {
+        console.error('Error getting session for invoice submission:', error)
+        throw new Error('Failed to get authentication session')
+      }
       
       if (!session) {
         throw new Error('You must be logged in to generate an invoice')
@@ -141,7 +167,9 @@ export default function InvoicePage() {
 
   const handleLogout = async () => {
     try {
+      console.log('Logging out user...')
       await supabase.auth.signOut()
+      console.log('User logged out, redirecting...')
       window.location.href = '/'
       toast.success('Logged out successfully')
     } catch (error) {

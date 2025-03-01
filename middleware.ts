@@ -3,11 +3,13 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  // Skip middleware for auth-related paths to prevent loops
+  // Skip middleware for static files and auth-related paths to prevent loops
   if (req.nextUrl.pathname.startsWith('/auth/') || 
       req.nextUrl.pathname.includes('callback') ||
       req.nextUrl.pathname.includes('login-fallback') ||
-      req.nextUrl.pathname === '/login-fallback.html') {
+      req.nextUrl.pathname === '/login-fallback.html' ||
+      req.nextUrl.pathname.startsWith('/_next/') ||
+      req.nextUrl.pathname.includes('.')) {
     return NextResponse.next()
   }
 
@@ -29,41 +31,56 @@ export async function middleware(req: NextRequest) {
     if (req.nextUrl.pathname.startsWith('/invoice')) {
       // If not logged in, redirect to login page
       if (!session) {
+        console.log('Middleware: No session found, redirecting to login')
+        
         // Check if the user has had issues with the login page
         const cookies = req.cookies
         const loginAttempts = cookies.get('login_attempts')?.value
         
-        // Store the original URL to redirect back after login
-        let redirectUrl
+        // Create the redirect URL with the original URL as a parameter
+        const redirectUrl = new URL(
+          loginAttempts && parseInt(loginAttempts) > 2 
+            ? '/auth/login-fallback' 
+            : '/auth/login', 
+          req.url
+        )
         
-        // If the user has tried the login page multiple times, use the fallback
-        if (loginAttempts && parseInt(loginAttempts) > 2) {
-          redirectUrl = new URL('/auth/login-fallback', req.url)
-        } else {
-          redirectUrl = new URL('/auth/login', req.url)
-          
-          // Set a cookie to track login attempts
-          const response = NextResponse.redirect(redirectUrl)
+        // Add the redirect target as a query parameter
+        redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
+        
+        // Create the response
+        const response = NextResponse.redirect(redirectUrl)
+        
+        // Set a cookie to track login attempts if using the main login page
+        if (!loginAttempts || parseInt(loginAttempts) <= 2) {
           const attempts = loginAttempts ? parseInt(loginAttempts) + 1 : 1
           response.cookies.set('login_attempts', attempts.toString(), { 
             path: '/',
-            maxAge: 60 * 60 * 24 // 24 hours
+            maxAge: 60 * 60 * 24, // 24 hours
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
           })
-          
-          redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
-          return response
         }
         
-        redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
-        return NextResponse.redirect(redirectUrl)
+        // Add cache control headers
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        response.headers.set('Pragma', 'no-cache')
+        
+        return response
       }
       
       // If user is logged in but not authorized, redirect to home
       if (session.user.email !== 'rgbwfoundation@gmail.com') {
-        return NextResponse.redirect(new URL('/', req.url))
+        console.log('Middleware: User not authorized, redirecting to home')
+        const response = NextResponse.redirect(new URL('/', req.url))
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        return response
       }
       
       // User is authorized, let them access the invoice page
+      console.log('Middleware: User authorized, allowing access to invoice page')
+      res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
       return res
     }
   } catch (error) {
