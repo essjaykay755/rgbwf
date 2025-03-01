@@ -24,7 +24,8 @@ export async function middleware(req: NextRequest) {
   }
 
   // Allow access to auth callback routes
-  if (req.nextUrl.pathname.startsWith('/auth/callback')) {
+  if (req.nextUrl.pathname.startsWith('/auth/callback') || 
+      req.nextUrl.pathname.startsWith('/auth/confirm')) {
     return res
   }
 
@@ -32,5 +33,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/invoice/:path*', '/auth/callback/:path*']
+  matcher: ['/invoice/:path*', '/auth/callback/:path*', '/auth/confirm/:path*']
 } 

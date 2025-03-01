@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
-export default function AuthCallbackPage() {
+export default function AuthConfirmPage() {
   const router = useRouter()
 
   useEffect(() => {
