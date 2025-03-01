@@ -31,35 +31,55 @@ export default function InvoicePage() {
   const [previewData, setPreviewData] = useState<InvoiceFormData | null>(null)
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
-  const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated'>('loading')
+  const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading')
   const router = useRouter()
 
-  // Simple flag to prevent multiple redirects
-  const redirected = { current: false }
-
+  // Set up auth state listener
   useEffect(() => {
-    // This function will only check if the user is authenticated
-    // It won't handle redirects - we'll let the middleware do that
-    const checkAuth = async () => {
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          if (session?.user?.email === 'rgbwfoundation@gmail.com') {
+            setUser(session.user)
+            setAuthStatus('authenticated')
+          } else {
+            setAuthStatus('unauthenticated')
+            // Not authorized, redirect to home
+            window.location.href = '/'
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null)
+          setAuthStatus('unauthenticated')
+          // Signed out, redirect to login
+          window.location.href = '/auth/login?redirectTo=/invoice'
+        }
+      }
+    )
+
+    // Initial session check
+    const checkSession = async () => {
       try {
-        // Get the session
         const { data: { session } } = await supabase.auth.getSession()
         
-        if (!session || !session.user || session.user.email !== 'rgbwfoundation@gmail.com') {
-          // We'll let the middleware handle the redirect
-          return
+        if (session?.user?.email === 'rgbwfoundation@gmail.com') {
+          setUser(session.user)
+          setAuthStatus('authenticated')
+        } else {
+          setAuthStatus('unauthenticated')
+          // Let the middleware handle the redirect
         }
-        
-        // User is authenticated and authorized
-        setUser(session.user)
-        setAuthStatus('authenticated')
       } catch (error) {
-        console.error('Error checking authentication:', error)
-        // We'll let the middleware handle the redirect
+        console.error('Error checking session:', error)
+        setAuthStatus('unauthenticated')
       }
     }
-    
-    checkAuth()
+
+    checkSession()
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
   const {
@@ -134,6 +154,15 @@ export default function InvoicePage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p>Loading invoice system...</p>
+      </div>
+    )
+  }
+
+  if (authStatus === 'unauthenticated') {
+    // This should rarely be seen as middleware should handle redirects
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Redirecting to login...</p>
       </div>
     )
   }

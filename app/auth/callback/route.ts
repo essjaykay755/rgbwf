@@ -16,14 +16,25 @@ export async function GET(request: NextRequest) {
   }
 
   // Create a Supabase client for the route handler
-  const supabase = createRouteHandlerClient({ cookies })
+  const cookieStore = cookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
   
   try {
     // Exchange the code for a session
-    await supabase.auth.exchangeCodeForSession(code)
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+    
+    if (exchangeError) {
+      console.error('Error exchanging code for session:', exchangeError)
+      throw exchangeError
+    }
     
     // Get the user to check if they're authorized
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError) {
+      console.error('Error getting user:', userError)
+      throw userError
+    }
     
     // If the user is rgbwfoundation@gmail.com, redirect to the specified page or invoice page
     if (user && user.email === 'rgbwfoundation@gmail.com') {
@@ -35,22 +46,29 @@ export async function GET(request: NextRequest) {
       const response = NextResponse.redirect(targetUrl)
       
       // Set cache control headers to prevent caching
-      response.headers.set('Cache-Control', 'no-store, max-age=0')
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
       response.headers.set('Pragma', 'no-cache')
       response.headers.set('Expires', '0')
+      
+      // Clear the login attempts cookie
+      response.cookies.set('login_attempts', '', { 
+        path: '/',
+        maxAge: 0,
+        expires: new Date(0)
+      })
       
       return response
     }
     
     // Otherwise, redirect to the homepage
     const response = NextResponse.redirect(new URL('/?auth=unauthorized', requestUrl.origin))
-    response.headers.set('Cache-Control', 'no-store, max-age=0')
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
     return response
   } catch (error) {
     console.error('Error in auth callback:', error)
     // On error, redirect to login with an error parameter
-    const response = NextResponse.redirect(new URL('/auth/login?error=callback_error', requestUrl.origin))
-    response.headers.set('Cache-Control', 'no-store, max-age=0')
+    const response = NextResponse.redirect(new URL('/auth/login-fallback?error=callback_error', requestUrl.origin))
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
     return response
   }
 } 
