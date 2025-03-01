@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { LoginButton } from '@/components/ui/LoginButton'
 
-export default function LoginPage() {
+// Create a client component that uses useSearchParams
+function LoginContent() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirectTo') || '/invoice'
   const [isLoading, setIsLoading] = useState(true)
@@ -93,5 +93,23 @@ export default function LoginPage() {
         Sign in with Google
       </button>
     </div>
+  )
+}
+
+// Loading fallback for Suspense
+function LoginFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <p>Loading login page...</p>
+    </div>
+  )
+}
+
+// Main page component with Suspense boundary
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginContent />
+    </Suspense>
   )
 } 
