@@ -10,8 +10,14 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code')
   const redirectTo = requestUrl.searchParams.get('redirectTo') || '/invoice'
   
+  console.log('Auth callback: Processing with code and redirectTo:', { 
+    hasCode: !!code, 
+    redirectTo 
+  })
+  
   // If there's no code, this isn't an OAuth callback, so redirect to home
   if (!code) {
+    console.log('Auth callback: No code provided, redirecting to home')
     return NextResponse.redirect(new URL('/', requestUrl.origin))
   }
 
@@ -21,6 +27,7 @@ export async function GET(request: NextRequest) {
   
   try {
     // Exchange the code for a session
+    console.log('Auth callback: Exchanging code for session')
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
     
     if (exchangeError) {
@@ -29,6 +36,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Get the session directly after exchange to ensure it's fresh
+    console.log('Auth callback: Getting session after exchange')
     const { data: { session }, error: sessionError } = await supabase.auth.getSession()
     
     if (sessionError) {
@@ -41,8 +49,12 @@ export async function GET(request: NextRequest) {
       throw new Error('Authentication failed: No session created')
     }
     
+    console.log('Auth callback: Session created for user:', session.user.email)
+    
     // If the user is rgbwfoundation@gmail.com, redirect to the specified page or invoice page
     if (session.user && session.user.email === 'rgbwfoundation@gmail.com') {
+      console.log('Auth callback: User is authorized, redirecting to:', redirectTo)
+      
       // Add a cache-busting parameter to prevent browser caching issues
       const targetUrl = new URL(redirectTo, requestUrl.origin)
       targetUrl.searchParams.set('t', Date.now().toString())
@@ -59,18 +71,20 @@ export async function GET(request: NextRequest) {
       response.headers.set('Expires', '0')
       response.headers.set('Surrogate-Control', 'no-store')
       
-      // Clear the login attempts cookie
-      response.cookies.set('login_attempts', '', { 
+      // Set session cookies to help with client-side auth
+      response.cookies.set('sb-auth-token-verified', 'true', {
         path: '/',
-        maxAge: 0,
-        expires: new Date(0)
+        maxAge: 60 * 60 * 24, // 24 hours
+        httpOnly: false, // Make it accessible to client-side JavaScript
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
       })
       
       // Set a session verification cookie to help with debugging
       response.cookies.set('session_verified', 'true', {
         path: '/',
         maxAge: 60 * 60 * 24, // 24 hours
-        httpOnly: true,
+        httpOnly: false, // Make it accessible to client-side JavaScript
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax'
       })
@@ -79,6 +93,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Otherwise, redirect to the homepage
+    console.log('Auth callback: User is not authorized, redirecting to home')
     const response = NextResponse.redirect(new URL('/?auth=unauthorized', requestUrl.origin), {
       status: 303
     })
@@ -90,7 +105,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in auth callback:', error)
     // On error, redirect to login with an error parameter
-    const response = NextResponse.redirect(new URL('/auth/login-fallback?error=callback_error', requestUrl.origin), {
+    const response = NextResponse.redirect(new URL('/auth/login?error=callback_error', requestUrl.origin), {
       status: 303
     })
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0')

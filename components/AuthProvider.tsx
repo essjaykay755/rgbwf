@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase, debugStorage } from '@/lib/supabase'
 import { User, Session } from '@supabase/supabase-js'
 import { useRouter, usePathname } from 'next/navigation'
 import { debugAuthState } from '@/lib/debug'
@@ -14,6 +14,7 @@ type AuthContextType = {
   isAuthenticated: boolean
   isAuthorized: boolean
   signOut: () => Promise<void>
+  refreshSession: () => Promise<void>
 }
 
 // Create the auth context with default values
@@ -23,7 +24,8 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   isAuthenticated: false,
   isAuthorized: false,
-  signOut: async () => {}
+  signOut: async () => {},
+  refreshSession: async () => {}
 })
 
 // Hook to use the auth context
@@ -43,6 +45,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check if the user is authenticated (has a session)
   const isAuthenticated = !!session
 
+  // Function to refresh the session
+  const refreshSession = async () => {
+    try {
+      console.log('AuthProvider: Manually refreshing session')
+      const { data: { session }, error } = await supabase.auth.getSession()
+      
+      if (error) {
+        console.error('Error refreshing session:', error)
+        return
+      }
+      
+      if (session) {
+        console.log('AuthProvider: Session refreshed successfully', session.user.email)
+        setSession(session)
+        setUser(session.user)
+      } else {
+        console.log('AuthProvider: No session found after refresh')
+      }
+    } catch (error) {
+      console.error('Exception refreshing session:', error)
+    }
+  }
+
   useEffect(() => {
     // Debug auth state on component mount
     debugAuthState().catch(error => {
@@ -53,6 +78,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkSession = async () => {
       try {
         console.log('AuthProvider: Checking initial session')
+        debugStorage() // Log storage state
+        
         const { data: { session }, error } = await supabase.auth.getSession()
         
         if (error) {
@@ -88,8 +115,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (event === 'SIGNED_IN') {
           console.log('AuthProvider: User signed in', session?.user?.email)
+          debugStorage() // Log storage after sign in
         } else if (event === 'SIGNED_OUT') {
           console.log('AuthProvider: User signed out')
+          debugStorage() // Log storage after sign out
         } else if (event === 'TOKEN_REFRESHED') {
           console.log('AuthProvider: Token refreshed')
         } else if (event === 'USER_UPDATED') {
@@ -135,7 +164,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         isAuthenticated,
         isAuthorized,
-        signOut: handleSignOut
+        signOut: handleSignOut,
+        refreshSession
       }}
     >
       {children}

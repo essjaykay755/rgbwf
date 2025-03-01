@@ -1,4 +1,5 @@
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -13,6 +14,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  console.log('Middleware: Processing request for', req.nextUrl.pathname)
+  
   // Create a response to modify
   const res = NextResponse.next()
   
@@ -20,6 +23,10 @@ export async function middleware(req: NextRequest) {
   const supabase = createMiddlewareClient({ req, res })
 
   try {
+    // Log all cookies for debugging
+    const allCookies = req.cookies.getAll()
+    console.log('Middleware: All cookies:', allCookies.map(c => c.name))
+    
     // Get the session - this will refresh the session if needed
     const { data: { session }, error } = await supabase.auth.getSession()
     
@@ -50,6 +57,8 @@ export async function middleware(req: NextRequest) {
         return response
       }
       
+      console.log('Middleware: Session found for user:', session.user.email)
+      
       // If user is logged in but not authorized, redirect to home
       if (session.user.email !== 'rgbwfoundation@gmail.com') {
         console.log('Middleware: User not authorized, redirecting to home')
@@ -70,7 +79,7 @@ export async function middleware(req: NextRequest) {
       res.cookies.set('middleware_verified', 'true', {
         path: '/',
         maxAge: 60 * 60 * 24, // 24 hours
-        httpOnly: true,
+        httpOnly: false, // Make it accessible to client-side JavaScript for debugging
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax'
       })

@@ -35,20 +35,34 @@ export default function InvoicePage() {
   const router = useRouter()
   
   // Use the auth context instead of managing auth state locally
-  const { user, session, isLoading, isAuthenticated, isAuthorized, signOut } = useAuth()
+  const { user, session, isLoading, isAuthenticated, isAuthorized, signOut, refreshSession } = useAuth()
 
-  // Debug auth state on component mount
+  // Debug auth state on component mount and refresh session
   useEffect(() => {
-    debugAuthState().catch(error => {
-      console.error('Error in debug auth state:', error)
-    })
-    
-    // If not authorized after loading, redirect to home
-    if (!isLoading && !isAuthorized) {
-      console.log('Invoice page: User not authorized, redirecting to home')
-      router.push('/')
+    const checkAuth = async () => {
+      try {
+        console.log('Invoice page: Checking auth state')
+        const debugResult = await debugAuthState()
+        console.log('Invoice page: Debug result:', debugResult)
+        
+        // If we have a middleware verification cookie but no session, try to refresh
+        if (!session && document.cookie.includes('middleware_verified')) {
+          console.log('Invoice page: Middleware verified but no session, refreshing')
+          await refreshSession()
+        }
+        
+        // If not authorized after loading, redirect to home
+        if (!isLoading && !isAuthorized) {
+          console.log('Invoice page: User not authorized, redirecting to home')
+          router.push('/')
+        }
+      } catch (error) {
+        console.error('Error in invoice page auth check:', error)
+      }
     }
-  }, [isLoading, isAuthorized, router])
+    
+    checkAuth()
+  }, [isLoading, isAuthorized, router, session, refreshSession])
 
   const {
     register,

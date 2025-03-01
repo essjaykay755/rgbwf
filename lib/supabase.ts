@@ -3,6 +3,36 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+// Helper function to get cookie value
+const getCookie = (name: string): string | null => {
+  if (typeof document === 'undefined') return null
+  
+  const cookies = document.cookie.split(';')
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim()
+    if (cookie.startsWith(name + '=')) {
+      return decodeURIComponent(cookie.substring(name.length + 1))
+    }
+  }
+  return null
+}
+
+// Helper function to set cookie
+const setCookie = (name: string, value: string, days: number = 7): void => {
+  if (typeof document === 'undefined') return
+  
+  const date = new Date()
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
+  const expires = `expires=${date.toUTCString()}`
+  document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/;SameSite=Lax`
+}
+
+// Helper function to delete cookie
+const deleteCookie = (name: string): void => {
+  if (typeof document === 'undefined') return
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`
+}
+
 // Create a custom Supabase client with auto-refresh sessions
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -17,54 +47,87 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         }
         
         try {
+          console.log(`Storage: Getting item ${key}`)
+          
           // Try to get from localStorage first
-          const value = window.localStorage.getItem(key)
-          if (value) {
-            return JSON.parse(value)
+          let value = null
+          try {
+            value = window.localStorage.getItem(key)
+            if (value) {
+              console.log(`Storage: Found ${key} in localStorage`)
+              return JSON.parse(value)
+            }
+          } catch (e) {
+            console.error(`Storage: Error reading ${key} from localStorage:`, e)
           }
           
           // If not in localStorage, try to get from cookies
-          const cookies = document.cookie.split(';')
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim()
-            if (cookie.startsWith(key + '=')) {
-              const cookieValue = decodeURIComponent(cookie.substring(key.length + 1))
+          try {
+            const cookieValue = getCookie(key)
+            if (cookieValue) {
+              console.log(`Storage: Found ${key} in cookies`)
               return JSON.parse(cookieValue)
             }
+          } catch (e) {
+            console.error(`Storage: Error reading ${key} from cookies:`, e)
           }
+          
+          console.log(`Storage: ${key} not found in storage`)
           return null
         } catch (error) {
-          console.error('Error reading from storage:', error)
+          console.error('Storage: Error reading from storage:', error)
           return null
         }
       },
       setItem: (key, value) => {
-        if (typeof window !== 'undefined') {
+        if (typeof window === 'undefined') return
+        
+        const valueStr = JSON.stringify(value)
+        console.log(`Storage: Setting item ${key}`)
+        
+        try {
+          // Store in localStorage
           try {
-            // Store in both localStorage and cookies for redundancy
-            window.localStorage.setItem(key, JSON.stringify(value))
-            
-            // Also set as a cookie with a long expiry
-            const valueStr = encodeURIComponent(JSON.stringify(value))
-            const date = new Date()
-            date.setTime(date.getTime() + (7 * 24 * 60 * 60 * 1000)) // 7 days
-            document.cookie = `${key}=${valueStr}; expires=${date.toUTCString()}; path=/; SameSite=Lax`
-          } catch (error) {
-            console.error('Error writing to storage:', error)
+            window.localStorage.setItem(key, valueStr)
+            console.log(`Storage: Saved ${key} to localStorage`)
+          } catch (e) {
+            console.error(`Storage: Error writing ${key} to localStorage:`, e)
           }
+          
+          // Also store in cookies
+          try {
+            setCookie(key, valueStr)
+            console.log(`Storage: Saved ${key} to cookies`)
+          } catch (e) {
+            console.error(`Storage: Error writing ${key} to cookies:`, e)
+          }
+        } catch (error) {
+          console.error('Storage: Error writing to storage:', error)
         }
       },
       removeItem: (key) => {
-        if (typeof window !== 'undefined') {
+        if (typeof window === 'undefined') return
+        
+        console.log(`Storage: Removing item ${key}`)
+        
+        try {
+          // Remove from localStorage
           try {
-            // Remove from localStorage
             window.localStorage.removeItem(key)
-            
-            // Remove from cookies by setting an expired date
-            document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax`
-          } catch (error) {
-            console.error('Error removing from storage:', error)
+            console.log(`Storage: Removed ${key} from localStorage`)
+          } catch (e) {
+            console.error(`Storage: Error removing ${key} from localStorage:`, e)
           }
+          
+          // Remove from cookies
+          try {
+            deleteCookie(key)
+            console.log(`Storage: Removed ${key} from cookies`)
+          } catch (e) {
+            console.error(`Storage: Error removing ${key} from cookies:`, e)
+          }
+        } catch (error) {
+          console.error('Storage: Error removing from storage:', error)
         }
       },
     },
@@ -76,6 +139,37 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     },
   },
 })
+
+// Add debug method to log all auth-related storage
+export const debugStorage = () => {
+  if (typeof window === 'undefined') return
+  
+  console.log('--- Storage Debug ---')
+  
+  // Check localStorage
+  try {
+    const keys = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && (key.includes('supabase') || key.includes('auth'))) {
+        keys.push(key)
+      }
+    }
+    console.log('LocalStorage keys:', keys)
+  } catch (e) {
+    console.error('Error reading localStorage:', e)
+  }
+  
+  // Check cookies
+  try {
+    const cookies = document.cookie.split(';').map(c => c.trim())
+    console.log('Cookies:', cookies)
+  } catch (e) {
+    console.error('Error reading cookies:', e)
+  }
+  
+  console.log('--- End Storage Debug ---')
+}
 
 export const getUser = async () => {
   try {
@@ -107,6 +201,8 @@ export const getSession = async () => {
 
 export const signOut = async () => {
   try {
+    debugStorage() // Log storage before sign out
+    
     const { error } = await supabase.auth.signOut({ scope: 'global' })
     if (error) {
       console.error('Error signing out:', error)
@@ -134,12 +230,17 @@ export const signOut = async () => {
         })
         
         // Also clear session cookies by setting expired cookies
-        document.cookie = 'session_verified=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
-        document.cookie = 'supabase.auth.token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+        deleteCookie('supabase.auth.token')
+        deleteCookie('sb-refresh-token')
+        deleteCookie('sb-access-token')
+        deleteCookie('session_verified')
+        deleteCookie('middleware_verified')
       } catch (error) {
         console.error('Error clearing storage during sign out:', error)
       }
     }
+    
+    debugStorage() // Log storage after sign out
   } catch (error) {
     console.error('Exception signing out:', error)
     throw error
