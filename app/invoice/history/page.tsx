@@ -8,16 +8,22 @@ import { useRouter } from 'next/navigation'
 import { LogOut, ArrowLeft, Download, Search } from 'lucide-react'
 import { createBrowserClient, getSession, signOut, isAuthorizedEmail } from '@/lib/supabase'
 import { Input } from '@/components/ui/input'
+import UnauthorizedMessage from '../../components/UnauthorizedMessage'
 
 interface InvoiceRecord {
   id: string
   created_at: string
-  donor_name: string
-  donor_email: string
-  amount: number
-  description: string
-  invoice_number: string
   serial_number: string
+  donor_details: {
+    name: string
+    email: string
+    address: string
+  }
+  amount: number
+  date: string
+  description: string
+  pdf_url: string
+  status: string
 }
 
 export default function InvoiceHistoryPage() {
@@ -25,6 +31,7 @@ export default function InvoiceHistoryPage() {
   const [filteredInvoices, setFilteredInvoices] = useState<InvoiceRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [isAuthorized, setIsAuthorized] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const router = useRouter()
 
@@ -57,17 +64,14 @@ export default function InvoiceHistoryPage() {
         
         // Check if user is authorized
         if (!isAuthorizedEmail(session.user.email || '')) {
-          console.log('User not authorized, signing out and redirecting to home')
-          toast.error('You do not have permission to access this page')
-          
-          // Sign out the unauthorized user
-          await signOut()
-          
-          router.push('/?error=unauthorized')
+          console.log('User not authorized:', session.user.email)
+          setUser(session.user)
+          setIsAuthorized(false)
           return
         }
         
         setUser(session.user)
+        setIsAuthorized(true)
         console.log('User is authorized, allowing access to invoice history page')
         
         // Fetch invoice history
@@ -84,30 +88,49 @@ export default function InvoiceHistoryPage() {
     checkAuth()
   }, [router])
 
-  const fetchInvoiceHistory = async (accessToken: string) => {
+  const fetchInvoiceHistory = async (token: string) => {
     try {
       setLoading(true)
       
-      const response = await fetch('/api/invoice/history', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        }
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to fetch invoice history')
+      const supabase = createBrowserClient()
+      if (!supabase) {
+        console.error('Failed to initialize Supabase client')
+        toast.error('Error: Failed to initialize database connection')
+        return
       }
-
-      const data = await response.json()
-      setInvoices(data.invoices)
-      setFilteredInvoices(data.invoices)
-      console.log('Fetched invoice history:', data.invoices)
-    } catch (error: any) {
-      console.error('Error fetching invoice history:', error)
-      toast.error(`Failed to fetch invoice history: ${error.message || 'Unknown error'}`)
+      
+      // Fetch invoices from the database
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('Error fetching invoices:', error)
+        toast.error('Failed to fetch invoice history')
+        return
+      }
+      
+      console.log('Fetched invoices:', data)
+      
+      // Safely transform the data to match our interface
+      const typedData: InvoiceRecord[] = data ? data.map((item: any) => ({
+        id: item.id,
+        created_at: item.created_at,
+        serial_number: item.serial_number,
+        donor_details: item.donor_details,
+        amount: item.amount,
+        date: item.date,
+        description: item.description,
+        pdf_url: item.pdf_url,
+        status: item.status
+      })) : [];
+      
+      setInvoices(typedData)
+      setFilteredInvoices(typedData)
+    } catch (error) {
+      console.error('Error in fetchInvoiceHistory:', error)
+      toast.error('Failed to load invoice history')
     } finally {
       setLoading(false)
     }
@@ -126,47 +149,6 @@ export default function InvoiceHistoryPage() {
     }
   }
 
-  const handleDownload = async (invoiceId: string, invoiceNumber: string) => {
-    try {
-      const session = await getSession()
-      
-      if (!session) {
-        toast.error('Your session has expired. Please log in again.')
-        router.push('/auth/login')
-        return
-      }
-      
-      toast.loading(`Downloading invoice ${invoiceNumber}...`)
-      
-      const response = await fetch(`/api/invoice/download/${invoiceId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to download invoice')
-      }
-
-      const data = await response.json()
-      
-      // Download the PDF
-      const link = document.createElement('a')
-      link.href = data.pdfUrl
-      link.download = `invoice-${invoiceNumber}.pdf`
-      link.click()
-      
-      toast.dismiss()
-      toast.success(`Invoice ${invoiceNumber} downloaded successfully`)
-    } catch (error: any) {
-      toast.dismiss()
-      console.error('Error downloading invoice:', error)
-      toast.error(`Failed to download invoice: ${error.message || 'Unknown error'}`)
-    }
-  }
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase()
     setSearchTerm(term)
@@ -177,13 +159,47 @@ export default function InvoiceHistoryPage() {
     }
     
     const filtered = invoices.filter(invoice => 
-      invoice.donor_name.toLowerCase().includes(term) ||
-      invoice.donor_email.toLowerCase().includes(term) ||
-      invoice.invoice_number.toLowerCase().includes(term) ||
+      invoice.donor_details.name.toLowerCase().includes(term) ||
+      invoice.donor_details.email.toLowerCase().includes(term) ||
+      invoice.serial_number.toLowerCase().includes(term) ||
       invoice.description.toLowerCase().includes(term)
     )
     
     setFilteredInvoices(filtered)
+  }
+
+  const downloadInvoice = async (serialNumber: string) => {
+    try {
+      const supabase = createBrowserClient()
+      if (!supabase) {
+        console.error('Failed to initialize Supabase client')
+        toast.error('Error: Failed to initialize database connection')
+        return
+      }
+      
+      // Get a signed URL for the PDF
+      const { data, error } = await supabase
+        .storage
+        .from('invoices')
+        .createSignedUrl(`${serialNumber}.pdf`, 60)
+      
+      if (error) {
+        console.error('Error getting signed URL:', error)
+        toast.error('Failed to generate download link')
+        return
+      }
+      
+      // Download the PDF
+      const link = document.createElement('a')
+      link.href = data.signedUrl
+      link.download = `invoice-${serialNumber}.pdf`
+      link.click()
+      
+      toast.success('Invoice download started')
+    } catch (error) {
+      console.error('Error downloading invoice:', error)
+      toast.error('Failed to download invoice')
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -218,6 +234,11 @@ export default function InvoiceHistoryPage() {
         <Button onClick={() => router.push('/auth/login')}>Go to Login Page</Button>
       </div>
     )
+  }
+
+  // Show unauthorized message if user is not authorized
+  if (!isAuthorized) {
+    return <UnauthorizedMessage email={user.email} />
   }
 
   return (
@@ -268,37 +289,53 @@ export default function InvoiceHistoryPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Invoice #</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Donor Name</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Email</th>
-                  <th className="border border-gray-300 px-4 py-2 text-right">Amount</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Description</th>
-                  <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice #</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Donor</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-gray-200">
                 {filteredInvoices.map((invoice) => (
-                  <tr key={invoice.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 px-4 py-2">{formatDate(invoice.created_at)}</td>
-                    <td className="border border-gray-300 px-4 py-2">{invoice.invoice_number}</td>
-                    <td className="border border-gray-300 px-4 py-2">{invoice.donor_name}</td>
-                    <td className="border border-gray-300 px-4 py-2">{invoice.donor_email}</td>
-                    <td className="border border-gray-300 px-4 py-2 text-right">
-                      ₹{invoice.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  <tr key={invoice.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(invoice.date).toLocaleDateString()}
                     </td>
-                    <td className="border border-gray-300 px-4 py-2">{invoice.description}</td>
-                    <td className="border border-gray-300 px-4 py-2 text-center">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {invoice.serial_number}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{invoice.donor_details.name}</div>
+                      <div className="text-sm text-gray-500">{invoice.donor_details.email}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      ${Number(invoice.amount).toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                      {invoice.description}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        invoice.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {invoice.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDownload(invoice.id, invoice.invoice_number)}
-                        title="Download Invoice"
+                        onClick={() => downloadInvoice(invoice.serial_number)}
+                        className="flex items-center gap-1 text-blue-600 hover:text-blue-900"
                       >
                         <Download className="w-4 h-4" />
+                        Download
                       </Button>
                     </td>
                   </tr>

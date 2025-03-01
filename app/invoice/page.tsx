@@ -14,6 +14,7 @@ import { InvoicePDF } from './InvoicePDF'
 import { useRouter } from 'next/navigation'
 import { LogOut, History } from 'lucide-react'
 import { createBrowserClient, getSession, getUser, signOut, isAuthorizedEmail } from '@/lib/supabase'
+import UnauthorizedMessage from '../components/UnauthorizedMessage'
 
 // Define the schema for form validation
 const invoiceSchema = z.object({
@@ -32,6 +33,7 @@ export default function InvoicePage() {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isAuthorized, setIsAuthorized] = useState(true)
   const router = useRouter()
 
   // Check authentication status
@@ -64,17 +66,14 @@ export default function InvoicePage() {
         
         // Check if user is authorized
         if (!isAuthorizedEmail(session.user.email || '')) {
-          console.log('User not authorized, signing out and redirecting to home')
-          toast.error('You do not have permission to access this page')
-          
-          // Sign out the unauthorized user
-          await signOut()
-          
-          router.push('/?error=unauthorized')
+          console.log('User not authorized:', session.user.email)
+          setUser(session.user)
+          setIsAuthorized(false)
           return
         }
         
         setUser(session.user)
+        setIsAuthorized(true)
         console.log('User is authorized, allowing access to invoice page')
       } catch (error) {
         console.error('Error checking authentication:', error)
@@ -239,6 +238,11 @@ export default function InvoicePage() {
         <Button onClick={() => router.push('/auth/login')}>Go to Login Page</Button>
       </div>
     )
+  }
+
+  // Show unauthorized message if user is not authorized
+  if (!isAuthorized) {
+    return <UnauthorizedMessage email={user.email} />
   }
 
   // Calculate preview data safely
