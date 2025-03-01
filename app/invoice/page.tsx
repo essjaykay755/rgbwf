@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { supabase, createBrowserClient } from '@/lib/supabase'
+import { createBrowserClient } from '@/lib/supabase'
 import { PDFViewer, PDFDownloadLink, pdf } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,19 +32,27 @@ export default function InvoicePage() {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [browserClient, setBrowserClient] = useState<any>(null)
+  const [initialized, setInitialized] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    // Initialize the browser client
-    setBrowserClient(createBrowserClient())
+    // Initialize once on component mount
+    setInitialized(true)
   }, [])
 
   useEffect(() => {
-    if (!browserClient) return
+    if (!initialized) return
 
     const checkUser = async () => {
       try {
+        // Get the browser client
+        const browserClient = createBrowserClient()
+        if (!browserClient) {
+          console.error('Browser client initialization failed')
+          setIsLoading(false)
+          return
+        }
+
         console.log('Checking user in invoice page')
         const { data: { user }, error } = await browserClient.auth.getUser()
         
@@ -67,13 +75,15 @@ export default function InvoicePage() {
     }
 
     checkUser()
-  }, [browserClient])
+  }, [initialized])
 
   // Function to check if the user is logged in
   const checkUserLoggedIn = async () => {
     try {
+      // Get the browser client
+      const browserClient = createBrowserClient()
       if (!browserClient) {
-        toast.error('Browser client not initialized')
+        toast.error('Browser client initialization failed')
         return false
       }
       
@@ -122,11 +132,13 @@ export default function InvoicePage() {
 
       console.log('Submitting form data:', data)
       
-      // Get the current session
+      // Get the browser client
+      const browserClient = createBrowserClient()
       if (!browserClient) {
-        throw new Error('Browser client not initialized')
+        throw new Error('Browser client initialization failed')
       }
       
+      // Get the current session
       const { data: { session }, error: sessionError } = await browserClient.auth.getSession()
       
       if (sessionError) {
@@ -174,8 +186,10 @@ export default function InvoicePage() {
 
   const handleLogout = async () => {
     try {
+      // Get the browser client
+      const browserClient = createBrowserClient()
       if (!browserClient) {
-        toast.error('Browser client not initialized')
+        toast.error('Browser client initialization failed')
         return
       }
       

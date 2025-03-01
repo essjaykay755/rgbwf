@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
+  // Create a response object that we'll modify and return
   const res = NextResponse.next()
   
   // Create a Supabase client specifically for the middleware
@@ -43,6 +44,7 @@ export async function middleware(req: NextRequest) {
     console.error('Middleware error:', error)
   }
 
+  // Return the response with any cookies that were set
   return res
 }
 

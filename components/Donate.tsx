@@ -102,6 +102,53 @@ export function DonateComponent() {
                     </div>
                   </div>
                 </div>
+                
+                {/* Bank Account Details */}
+                <div className="p-6 bg-gray-50 rounded-xl border border-gray-100">
+                  <h3 className="font-semibold mb-4 text-lg">Bank Account Details</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <HandHeart className="w-5 h-5 text-primary" />
+                      <p className="text-gray-600">A/C NAME: RGB WELFARE FOUNDATION</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <HandHeart className="w-5 h-5 text-primary" />
+                      <p className="text-gray-600">A/C NO: 925020008521912</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <HandHeart className="w-5 h-5 text-primary" />
+                      <p className="text-gray-600">IFSC: UTIB0000547</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Registration and Legal Information */}
+                <div className="p-6 bg-gray-50 rounded-xl border border-gray-100">
+                  <h3 className="font-semibold mb-4 text-lg">Registration & Legal Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Shield className="w-5 h-5 text-primary" />
+                      <p className="text-gray-600">Registration No: U88100WB2025NPL275903</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Shield className="w-5 h-5 text-primary" />
+                      <p className="text-gray-600">License No: 163588</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Shield className="w-5 h-5 text-primary" />
+                      <p className="text-gray-600">NITI Aayog: WB/2025/0503823</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Shield className="w-5 h-5 text-primary" />
+                      <p className="text-gray-600">12A: AAOCR2429RE20241</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Shield className="w-5 h-5 text-primary" />
+                      <p className="text-gray-600">80G: AAOCR2529RF2025101</p>
+                    </div>
+                  </div>
+                </div>
+                
                 <div className="flex justify-center gap-4">
                   <a
                     href="https://www.facebook.com/profile.php?id=61571891546414"

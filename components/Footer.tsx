@@ -198,6 +198,21 @@ export default function Footer() {
                     Cookie Policy
                   </Link>
                 </li>
+                <li className="pt-4 border-t border-white/10">
+                  <p className="text-white/80 text-sm">Registration No: U88100WB2025NPL275903</p>
+                </li>
+                <li>
+                  <p className="text-white/80 text-sm">License No: 163588</p>
+                </li>
+                <li>
+                  <p className="text-white/80 text-sm">NITI Aayog: WB/2025/0503823</p>
+                </li>
+                <li>
+                  <p className="text-white/80 text-sm">12A: AAOCR2429RE20241</p>
+                </li>
+                <li>
+                  <p className="text-white/80 text-sm">80G: AAOCR2529RF2025101</p>
+                </li>
               </ul>
             </motion.div>
 

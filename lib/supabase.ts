@@ -4,25 +4,35 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Create a custom Supabase client with auto-refresh sessions
+// Create a browser client that uses cookies for session management
+// This is the primary client that should be used in all client components
+let browserClient: ReturnType<typeof createClientComponentClient> | null = null
+
+export const createBrowserClient = () => {
+  if (typeof window === 'undefined') {
+    return null
+  }
+  
+  if (!browserClient) {
+    browserClient = createClientComponentClient()
+  }
+  
+  return browserClient
+}
+
+// This client should only be used in server contexts or for initialization
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce',
-    storageKey: 'supabase.auth.token',
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined
+    detectSessionInUrl: false, // Disable this to prevent duplicate session handling
+    flowType: 'pkce'
   }
 })
 
-// Create a browser client that uses cookies for session management
-export const createBrowserClient = () => {
-  return createClientComponentClient()
-}
-
 export const getUser = async () => {
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const client = createBrowserClient() || supabase
+  const { data: { user }, error } = await client.auth.getUser()
   if (error) {
     throw error
   }
@@ -30,7 +40,8 @@ export const getUser = async () => {
 }
 
 export const signOut = async () => {
-  const { error } = await supabase.auth.signOut()
+  const client = createBrowserClient() || supabase
+  const { error } = await client.auth.signOut()
   if (error) {
     throw error
   }

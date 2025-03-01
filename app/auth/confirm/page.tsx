@@ -2,26 +2,33 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase, createBrowserClient } from '@/lib/supabase'
+import { createBrowserClient } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 export default function AuthConfirmPage() {
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [browserClient, setBrowserClient] = useState<any>(null)
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    // Initialize the browser client
-    setBrowserClient(createBrowserClient())
+    // Initialize once on component mount
+    setInitialized(true)
   }, [])
 
   useEffect(() => {
-    if (!browserClient) return
+    if (!initialized) return
 
     // Check for the hash fragment in the URL
     const handleHashFragment = async () => {
       try {
+        // Get the browser client
+        const browserClient = createBrowserClient()
+        if (!browserClient) {
+          setError('Browser client initialization failed')
+          return
+        }
+
         console.log('Auth confirm page loaded, checking for hash fragment')
         setIsProcessing(true)
         
@@ -114,7 +121,7 @@ export default function AuthConfirmPage() {
     }
 
     handleHashFragment()
-  }, [router, browserClient])
+  }, [router, initialized])
 
   return (
     <div className="flex items-center justify-center min-h-screen">

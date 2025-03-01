@@ -33,6 +33,12 @@ export async function GET(request: Request) {
         console.error('Error getting session after exchange:', sessionError)
       } else if (sessionData?.session) {
         console.log('Session verified after exchange, user:', sessionData.session.user.email)
+        
+        // Create a response that redirects to the invoice page
+        const response = NextResponse.redirect(new URL('/invoice', requestUrl.origin))
+        
+        // Return the response with the session cookie
+        return response
       } else {
         console.warn('No session found after exchange')
       }

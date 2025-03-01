@@ -1,15 +1,15 @@
-import { supabase, createBrowserClient } from '@/lib/supabase'
+import { createBrowserClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 
 export function LoginButton() {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
-  const [browserClient, setBrowserClient] = useState<any>(null)
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    // Initialize the browser client
-    setBrowserClient(createBrowserClient())
+    // Initialize once on component mount
+    setInitialized(true)
   }, [])
 
   const handleLogin = async () => {
@@ -17,9 +17,11 @@ export function LoginButton() {
       setIsLoggingIn(true)
       console.log('Starting login process')
       
+      // Get the browser client
+      const browserClient = createBrowserClient()
       if (!browserClient) {
-        console.error('Browser client not initialized')
-        throw new Error('Browser client not initialized')
+        console.error('Browser client initialization failed')
+        throw new Error('Browser client initialization failed')
       }
       
       // Clear any existing session first
