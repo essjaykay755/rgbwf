@@ -9,42 +9,44 @@ function LoginContent() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirectTo') || '/invoice'
   const [isLoading, setIsLoading] = useState(true)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [hasRedirected, setHasRedirected] = useState(false)
+  const [sessionChecked, setSessionChecked] = useState(false)
 
   useEffect(() => {
-    // Prevent multiple redirects
-    if (hasRedirected) return
+    // Only run this once
+    if (sessionChecked) return;
     
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         
-        if (session) {
-          setIsLoggedIn(true)
-          
+        if (session && session.user) {
           // If already logged in, redirect to the target page
           if (session.user.email === 'rgbwfoundation@gmail.com') {
-            setHasRedirected(true)
-            window.location.href = redirectTo
+            // Use a timeout to prevent immediate redirect that might cause loops
+            setTimeout(() => {
+              window.location.href = redirectTo
+            }, 100)
           } else {
             // If not authorized, redirect to home
-            setHasRedirected(true)
-            window.location.href = '/'
+            setTimeout(() => {
+              window.location.href = '/'
+            }, 100)
           }
         }
       } catch (error) {
         console.error('Error checking session:', error)
       } finally {
         setIsLoading(false)
+        setSessionChecked(true)
       }
     }
 
     checkSession()
-  }, [redirectTo, hasRedirected])
+  }, [redirectTo, sessionChecked])
 
   const handleLogin = async () => {
     try {
+      setIsLoading(true)
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -58,6 +60,7 @@ function LoginContent() {
       if (error) throw error
     } catch (error) {
       console.error('Error logging in:', error)
+      setIsLoading(false)
     }
   }
 
@@ -65,14 +68,6 @@ function LoginContent() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p>Loading...</p>
-      </div>
-    )
-  }
-
-  if (isLoggedIn) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Redirecting...</p>
       </div>
     )
   }

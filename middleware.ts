@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  // Skip middleware if the request is for the login page to prevent loops
-  if (req.nextUrl.pathname.startsWith('/auth/login')) {
+  // Skip middleware for auth-related paths to prevent loops
+  if (req.nextUrl.pathname.startsWith('/auth/') || 
+      req.nextUrl.pathname.includes('callback')) {
     return NextResponse.next()
   }
 

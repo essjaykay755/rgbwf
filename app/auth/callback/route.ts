@@ -25,14 +25,17 @@ export async function GET(request: NextRequest) {
     
     // If the user is rgbwfoundation@gmail.com, redirect to the specified page or invoice page
     if (user && user.email === 'rgbwfoundation@gmail.com') {
-      return NextResponse.redirect(new URL(redirectTo, requestUrl.origin))
+      // Add a cache-busting parameter to prevent browser caching issues
+      const targetUrl = new URL(redirectTo, requestUrl.origin)
+      targetUrl.searchParams.set('t', Date.now().toString())
+      return NextResponse.redirect(targetUrl)
     }
     
     // Otherwise, redirect to the homepage
-    return NextResponse.redirect(new URL('/', requestUrl.origin))
+    return NextResponse.redirect(new URL('/?auth=unauthorized', requestUrl.origin))
   } catch (error) {
     console.error('Error in auth callback:', error)
-    // On error, redirect to login
-    return NextResponse.redirect(new URL('/auth/login', requestUrl.origin))
+    // On error, redirect to login with an error parameter
+    return NextResponse.redirect(new URL('/auth/login?error=callback_error', requestUrl.origin))
   }
 } 

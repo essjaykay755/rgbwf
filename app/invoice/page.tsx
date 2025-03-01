@@ -31,77 +31,36 @@ export default function InvoicePage() {
   const [previewData, setPreviewData] = useState<InvoiceFormData | null>(null)
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
-  const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated' | 'unauthenticated' | 'unauthorized'>('loading')
+  const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated'>('loading')
   const router = useRouter()
 
-  // Use a ref to track if we've already redirected to prevent loops
-  const hasRedirected = useState(false)
+  // Simple flag to prevent multiple redirects
+  const redirected = { current: false }
 
   useEffect(() => {
-    let isMounted = true
-    
+    // This function will only check if the user is authenticated
+    // It won't handle redirects - we'll let the middleware do that
     const checkAuth = async () => {
       try {
         // Get the session
         const { data: { session } } = await supabase.auth.getSession()
         
-        if (!session) {
-          if (isMounted) {
-            setAuthStatus('unauthenticated')
-          }
-          return
-        }
-        
-        // Get the user
-        const { data: { user } } = await supabase.auth.getUser()
-        
-        if (!user) {
-          if (isMounted) {
-            setAuthStatus('unauthenticated')
-          }
-          return
-        }
-        
-        // Check if user is authorized
-        if (user.email !== 'rgbwfoundation@gmail.com') {
-          if (isMounted) {
-            setAuthStatus('unauthorized')
-          }
+        if (!session || !session.user || session.user.email !== 'rgbwfoundation@gmail.com') {
+          // We'll let the middleware handle the redirect
           return
         }
         
         // User is authenticated and authorized
-        if (isMounted) {
-          setUser(user)
-          setAuthStatus('authenticated')
-        }
+        setUser(session.user)
+        setAuthStatus('authenticated')
       } catch (error) {
         console.error('Error checking authentication:', error)
-        if (isMounted) {
-          setAuthStatus('unauthenticated')
-        }
+        // We'll let the middleware handle the redirect
       }
     }
     
     checkAuth()
-    
-    return () => {
-      isMounted = false
-    }
   }, [])
-  
-  // Handle redirects based on auth status
-  useEffect(() => {
-    if (hasRedirected[0]) return
-    
-    if (authStatus === 'unauthenticated') {
-      hasRedirected[0] = true
-      window.location.href = '/auth/login?redirectTo=/invoice'
-    } else if (authStatus === 'unauthorized') {
-      hasRedirected[0] = true
-      window.location.href = '/'
-    }
-  }, [authStatus, hasRedirected])
 
   const {
     register,
@@ -174,109 +133,100 @@ export default function InvoicePage() {
   if (authStatus === 'loading') {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Loading...</p>
+        <p>Loading invoice system...</p>
       </div>
     )
   }
 
   // Only render the form if authenticated
-  if (authStatus === 'authenticated') {
-    return (
-      <div className="container mx-auto py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Generate Invoice</h1>
-          <Button 
-            variant="outline" 
-            onClick={handleLogout}
-            className="flex items-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </Button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card className="p-6">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label className="block mb-2">Donor Name</label>
-                <Input {...register('donorName')} />
-                {errors.donorName && (
-                  <p className="text-red-500 text-sm">{errors.donorName.message}</p>
-                )}
-              </div>
-  
-              <div>
-                <label className="block mb-2">Donor Email</label>
-                <Input {...register('donorEmail')} type="email" />
-                {errors.donorEmail && (
-                  <p className="text-red-500 text-sm">{errors.donorEmail.message}</p>
-                )}
-              </div>
-  
-              <div>
-                <label className="block mb-2">Donor Address</label>
-                <Textarea {...register('donorAddress')} />
-                {errors.donorAddress && (
-                  <p className="text-red-500 text-sm">{errors.donorAddress.message}</p>
-                )}
-              </div>
-  
-              <div>
-                <label className="block mb-2">Amount</label>
-                <Input
-                  {...register('amount', { valueAsNumber: true })}
-                  type="number"
-                  step="0.01"
-                />
-                {errors.amount && (
-                  <p className="text-red-500 text-sm">{errors.amount.message}</p>
-                )}
-              </div>
-  
-              <div>
-                <label className="block mb-2">Date</label>
-                <Input {...register('date')} type="date" />
-                {errors.date && (
-                  <p className="text-red-500 text-sm">{errors.date.message}</p>
-                )}
-              </div>
-  
-              <div>
-                <label className="block mb-2">Description</label>
-                <Textarea {...register('description')} />
-                {errors.description && (
-                  <p className="text-red-500 text-sm">{errors.description.message}</p>
-                )}
-              </div>
-  
-              <div className="flex gap-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Generating...' : 'Generate & Download Invoice'}
-                </Button>
-              </div>
-            </form>
-          </Card>
-  
-          {previewData && (
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">Preview</h2>
-              <div className="h-[600px] overflow-auto border rounded">
-                <PDFViewer width="100%" height="100%" className="border-0">
-                  <InvoicePDF data={previewData} />
-                </PDFViewer>
-              </div>
-            </Card>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  // This should never be reached due to redirects, but as a fallback
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <p>Redirecting...</p>
+    <div className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Generate Invoice</h1>
+        <Button 
+          variant="outline" 
+          onClick={handleLogout}
+          className="flex items-center gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          Logout
+        </Button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Card className="p-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label className="block mb-2">Donor Name</label>
+              <Input {...register('donorName')} />
+              {errors.donorName && (
+                <p className="text-red-500 text-sm">{errors.donorName.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-2">Donor Email</label>
+              <Input {...register('donorEmail')} type="email" />
+              {errors.donorEmail && (
+                <p className="text-red-500 text-sm">{errors.donorEmail.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-2">Donor Address</label>
+              <Textarea {...register('donorAddress')} />
+              {errors.donorAddress && (
+                <p className="text-red-500 text-sm">{errors.donorAddress.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-2">Amount</label>
+              <Input
+                {...register('amount', { valueAsNumber: true })}
+                type="number"
+                step="0.01"
+              />
+              {errors.amount && (
+                <p className="text-red-500 text-sm">{errors.amount.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-2">Date</label>
+              <Input {...register('date')} type="date" />
+              {errors.date && (
+                <p className="text-red-500 text-sm">{errors.date.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-2">Description</label>
+              <Textarea {...register('description')} />
+              {errors.description && (
+                <p className="text-red-500 text-sm">{errors.description.message}</p>
+              )}
+            </div>
+
+            <div className="flex gap-4">
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Generating...' : 'Generate & Download Invoice'}
+              </Button>
+            </div>
+          </form>
+        </Card>
+
+        {previewData && (
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-4">Preview</h2>
+            <div className="h-[600px] overflow-auto border rounded">
+              <PDFViewer width="100%" height="100%" className="border-0">
+                <InvoicePDF data={previewData} />
+              </PDFViewer>
+            </div>
+          </Card>
+        )}
+      </div>
     </div>
   )
 } 
