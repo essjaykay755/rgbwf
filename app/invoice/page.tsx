@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { supabase } from '@/lib/supabase'
-import { debugAuthState } from '@/lib/debug'
 import { PDFViewer, PDFDownloadLink, pdf } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,7 +15,6 @@ import { InvoicePDF } from './InvoicePDF'
 import { useRouter } from 'next/navigation'
 import { LoginButton } from '@/components/ui/LoginButton'
 import { LogOut } from 'lucide-react'
-import { useAuth } from '@/components/AuthProvider'
 
 const invoiceSchema = z.object({
   donorName: z.string().min(1, 'Donor name is required'),
@@ -32,37 +30,41 @@ type InvoiceFormData = z.infer<typeof invoiceSchema>
 export default function InvoicePage() {
   const [previewData, setPreviewData] = useState<InvoiceFormData | null>(null)
   const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
-  
-  // Use the auth context instead of managing auth state locally
-  const { user, session, isLoading, isAuthenticated, isAuthorized, signOut, refreshSession } = useAuth()
 
-  // Debug auth state on component mount and refresh session
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkUser = async () => {
       try {
-        console.log('Invoice page: Checking auth state')
-        const debugResult = await debugAuthState()
-        console.log('Invoice page: Debug result:', debugResult)
-        
-        // If we have a middleware verification cookie but no session, try to refresh
-        if (!session && document.cookie.includes('middleware_verified')) {
-          console.log('Invoice page: Middleware verified but no session, refreshing')
-          await refreshSession()
-        }
-        
-        // If not authorized after loading, redirect to home
-        if (!isLoading && !isAuthorized) {
-          console.log('Invoice page: User not authorized, redirecting to home')
-          router.push('/')
-        }
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error) throw error
+        setUser(user)
       } catch (error) {
-        console.error('Error in invoice page auth check:', error)
+        console.error('Error checking user:', error)
+      } finally {
+        setIsLoading(false)
       }
     }
-    
-    checkAuth()
-  }, [isLoading, isAuthorized, router, session, refreshSession])
+
+    checkUser()
+  }, [])
+
+  // Function to check if the user is logged in
+  const checkUserLoggedIn = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        toast.error('You must be logged in to generate an invoice')
+        return false
+      }
+      return true
+    } catch (error) {
+      console.error('Error checking session:', error)
+      toast.error('Error checking login status')
+      return false
+    }
+  }
 
   const {
     register,
@@ -77,10 +79,17 @@ export default function InvoicePage() {
 
   const onSubmit = async (data: InvoiceFormData) => {
     try {
+      // Check if the user is logged in
+      const isLoggedIn = await checkUserLoggedIn()
+      if (!isLoggedIn) return
+
       setLoading(true)
       setPreviewData(data)
 
       console.log('Submitting form data:', data)
+      
+      // Get the current session
+      const { data: { session } } = await supabase.auth.getSession()
       
       if (!session) {
         throw new Error('You must be logged in to generate an invoice')
@@ -120,8 +129,8 @@ export default function InvoicePage() {
 
   const handleLogout = async () => {
     try {
-      console.log('Logging out user...')
-      await signOut()
+      await supabase.auth.signOut()
+      router.push('/')
       toast.success('Logged out successfully')
     } catch (error) {
       console.error('Error logging out:', error)
@@ -132,20 +141,39 @@ export default function InvoicePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Loading invoice system...</p>
+        <p>Loading...</p>
       </div>
     )
   }
 
-  if (!isAuthorized) {
+  if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Redirecting to login...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <p>Please sign in to access the invoice generation system.</p>
+        <LoginButton />
       </div>
     )
   }
 
-  // Only render the form if authenticated and authorized
+  if (user && user.email !== 'rgbwfoundation@gmail.com') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <p>You don't have permission to access this page.</p>
+        <div className="flex gap-4">
+          <Button onClick={() => router.push('/')}>Go Home</Button>
+          <Button 
+            variant="outline" 
+            onClick={handleLogout}
+            className="flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
@@ -223,16 +251,16 @@ export default function InvoicePage() {
           </form>
         </Card>
 
-        {previewData && (
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-4">Preview</h2>
-            <div className="h-[600px] overflow-auto border rounded">
-              <PDFViewer width="100%" height="100%" className="border-0">
-                <InvoicePDF data={previewData} />
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Preview</h2>
+          {Object.keys(formData).every(key => formData[key as keyof InvoiceFormData]) && (
+            <div className="h-[800px]">
+              <PDFViewer width="100%" height="100%">
+                <InvoicePDF data={formData as InvoiceFormData} />
               </PDFViewer>
             </div>
-          </Card>
-        )}
+          )}
+        </Card>
       </div>
     </div>
   )
