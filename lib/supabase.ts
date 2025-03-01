@@ -15,20 +15,41 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         if (typeof window === 'undefined') {
           return null
         }
-        return JSON.parse(window.localStorage.getItem(key) || 'null')
+        
+        try {
+          const value = window.localStorage.getItem(key)
+          return value ? JSON.parse(value) : null
+        } catch (error) {
+          console.error('Error reading from localStorage:', error)
+          return null
+        }
       },
       setItem: (key, value) => {
         if (typeof window !== 'undefined') {
-          window.localStorage.setItem(key, JSON.stringify(value))
+          try {
+            window.localStorage.setItem(key, JSON.stringify(value))
+          } catch (error) {
+            console.error('Error writing to localStorage:', error)
+          }
         }
       },
       removeItem: (key) => {
         if (typeof window !== 'undefined') {
-          window.localStorage.removeItem(key)
+          try {
+            window.localStorage.removeItem(key)
+          } catch (error) {
+            console.error('Error removing from localStorage:', error)
+          }
         }
       },
     },
-  }
+  },
+  global: {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      'Pragma': 'no-cache',
+    },
+  },
 })
 
 export const getUser = async () => {
@@ -61,14 +82,37 @@ export const getSession = async () => {
 
 export const signOut = async () => {
   try {
-    const { error } = await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut({ scope: 'global' })
     if (error) {
       console.error('Error signing out:', error)
       throw error
     }
+    
     // Clear any local storage items related to auth
     if (typeof window !== 'undefined') {
-      window.localStorage.removeItem('supabase.auth.token')
+      try {
+        // Clear specific Supabase auth items
+        window.localStorage.removeItem('supabase.auth.token')
+        
+        // Clear any other auth-related items
+        const keysToRemove = []
+        for (let i = 0; i < window.localStorage.length; i++) {
+          const key = window.localStorage.key(i)
+          if (key && (key.includes('supabase') || key.includes('auth'))) {
+            keysToRemove.push(key)
+          }
+        }
+        
+        // Remove the collected keys
+        keysToRemove.forEach(key => {
+          window.localStorage.removeItem(key)
+        })
+        
+        // Also clear session cookies by setting expired cookies
+        document.cookie = 'session_verified=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+      } catch (error) {
+        console.error('Error clearing local storage during sign out:', error)
+      }
     }
   } catch (error) {
     console.error('Exception signing out:', error)

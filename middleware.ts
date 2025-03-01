@@ -63,9 +63,10 @@ export async function middleware(req: NextRequest) {
           })
         }
         
-        // Add cache control headers
+        // Add cache control headers to prevent caching
         response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
         response.headers.set('Pragma', 'no-cache')
+        response.headers.set('Expires', '0')
         
         return response
       }
@@ -75,12 +76,16 @@ export async function middleware(req: NextRequest) {
         console.log('Middleware: User not authorized, redirecting to home')
         const response = NextResponse.redirect(new URL('/', req.url))
         response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        response.headers.set('Pragma', 'no-cache')
+        response.headers.set('Expires', '0')
         return response
       }
       
       // User is authorized, let them access the invoice page
       console.log('Middleware: User authorized, allowing access to invoice page')
       res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+      res.headers.set('Pragma', 'no-cache')
+      res.headers.set('Expires', '0')
       return res
     }
   } catch (error) {

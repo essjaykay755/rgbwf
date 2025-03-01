@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { supabase } from '@/lib/supabase'
+import { supabase, signOut } from '@/lib/supabase'
 import { debugAuthState } from '@/lib/debug'
 import { PDFViewer, PDFDownloadLink, pdf } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
@@ -58,11 +58,17 @@ export default function InvoicePage() {
           console.log('Invoice page: User is authenticated and authorized')
           setUser(session.user)
           setAuthStatus('authenticated')
-        } else {
-          console.log('Invoice page: User is not authenticated or not authorized')
+        } else if (session) {
+          // User is logged in but not authorized
+          console.log('Invoice page: User is authenticated but not authorized')
           setAuthStatus('unauthenticated')
-          // Let the middleware handle the redirect
-          window.location.href = '/auth/login?redirectTo=/invoice'
+          // Redirect to home page for unauthorized users
+          window.location.href = '/'
+        } else {
+          console.log('Invoice page: User is not authenticated')
+          setAuthStatus('unauthenticated')
+          // Only redirect if we're sure there's no session
+          // Let the middleware handle the redirect instead of doing it here
         }
       } catch (error) {
         console.error('Error checking session in invoice page:', error)
@@ -92,8 +98,15 @@ export default function InvoicePage() {
           console.log('Invoice page: User signed out')
           setUser(null)
           setAuthStatus('unauthenticated')
-          // Signed out, redirect to login
-          window.location.href = '/auth/login?redirectTo=/invoice'
+          // Signed out, redirect to login - let middleware handle this
+          // Don't redirect here to avoid race conditions
+        } else if (event === 'USER_UPDATED') {
+          // Just update the user object if it's the same user
+          if (session?.user?.email === 'rgbwfoundation@gmail.com') {
+            console.log('Invoice page: User updated and still authorized')
+            setUser(session.user)
+            setAuthStatus('authenticated')
+          }
         }
       }
     )
@@ -168,10 +181,15 @@ export default function InvoicePage() {
   const handleLogout = async () => {
     try {
       console.log('Logging out user...')
-      await supabase.auth.signOut()
+      // Use the signOut function from lib/supabase.ts which has enhanced cleanup
+      await signOut()
       console.log('User logged out, redirecting...')
-      window.location.href = '/'
-      toast.success('Logged out successfully')
+      
+      // Set a small delay to ensure all cleanup is complete before redirecting
+      setTimeout(() => {
+        window.location.href = '/'
+        toast.success('Logged out successfully')
+      }, 100)
     } catch (error) {
       console.error('Error logging out:', error)
       toast.error('Failed to log out')
