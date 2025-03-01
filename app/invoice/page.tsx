@@ -32,23 +32,45 @@ export default function InvoicePage() {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [authChecked, setAuthChecked] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
+    // Only run this once
+    if (authChecked) return;
+    
     const checkUser = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error) throw error
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session) {
+          // If no session, redirect to login
+          router.push('/auth/login?redirectTo=/invoice')
+          return
+        }
+        
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (!user || user.email !== 'rgbwfoundation@gmail.com') {
+          // If not authorized, redirect to home
+          router.push('/')
+          return
+        }
+        
+        // User is authorized
         setUser(user)
       } catch (error) {
         console.error('Error checking user:', error)
+        // On error, redirect to login
+        router.push('/auth/login?redirectTo=/invoice')
       } finally {
         setIsLoading(false)
+        setAuthChecked(true)
       }
     }
 
     checkUser()
-  }, [])
+  }, [router, authChecked])
 
   // Function to check if the user is logged in
   const checkUserLoggedIn = async () => {
@@ -146,34 +168,16 @@ export default function InvoicePage() {
     )
   }
 
-  if (!user) {
+  // Don't render anything until auth check is complete
+  if (!authChecked) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p>Please sign in to access the invoice generation system.</p>
-        <LoginButton />
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Checking authorization...</p>
       </div>
     )
   }
 
-  if (user && user.email !== 'rgbwfoundation@gmail.com') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p>You don't have permission to access this page.</p>
-        <div className="flex gap-4">
-          <Button onClick={() => router.push('/')}>Go Home</Button>
-          <Button 
-            variant="outline" 
-            onClick={handleLogout}
-            className="flex items-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
+  // At this point, if we're still rendering, the user is authorized
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
@@ -251,16 +255,16 @@ export default function InvoicePage() {
           </form>
         </Card>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
-          {Object.keys(formData).every(key => formData[key as keyof InvoiceFormData]) && (
-            <div className="h-[800px]">
-              <PDFViewer width="100%" height="100%">
-                <InvoicePDF data={formData as InvoiceFormData} />
+        {previewData && (
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-4">Preview</h2>
+            <div className="h-[600px] overflow-auto border rounded">
+              <PDFViewer width="100%" height="100%" className="border-0">
+                <InvoicePDF data={previewData} />
               </PDFViewer>
             </div>
-          )}
-        </Card>
+          </Card>
+        )}
       </div>
     </div>
   )
