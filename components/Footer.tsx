@@ -4,11 +4,9 @@ import Link from "next/link"
 import { Facebook, Linkedin, Mail, Phone, MapPin, Instagram, Heart } from "lucide-react"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { useAuth } from "./AuthProvider"
+import AdminInvoiceLink from "./AdminInvoiceLink"
 
 export default function Footer() {
-  const { isAuthorized } = useAuth()
-  
   return (
     <footer>
       {/* Newsletter Section */}
@@ -172,13 +170,7 @@ export default function Footer() {
                     Join Now
                   </Link>
                 </li>
-                {isAuthorized && (
-                  <li>
-                    <Link href="/invoice" className="text-white/80 hover:text-white transition-all duration-300 hover:translate-x-1 inline-flex">
-                      Invoice Generator
-                    </Link>
-                  </li>
-                )}
+                <AdminInvoiceLink />
               </ul>
             </motion.div>
 
