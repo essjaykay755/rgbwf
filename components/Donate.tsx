@@ -157,29 +157,29 @@ export function DonateComponent() {
                   <h3 className="font-semibold text-lg text-amber-700">Registration & Legal Information</h3>
                 </div>
                 <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">Registration No</p>
-                      <p className="text-gray-700 font-medium">U88100WB2025NPL275903</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-2">Registration No</p>
+                      <p className="text-gray-700 font-medium break-all">U88100WB2025NPL275903</p>
                     </div>
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">License No</p>
+                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-2">License No</p>
                       <p className="text-gray-700 font-medium">163588</p>
                     </div>
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">NITI Aayog</p>
+                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-2">NITI Aayog</p>
                       <p className="text-gray-700 font-medium">WB/2025/0503823</p>
                     </div>
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">12A</p>
+                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-2">12A</p>
                       <p className="text-gray-700 font-medium">AAOCR2429RE20241</p>
                     </div>
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">80G</p>
+                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-2">80G</p>
                       <p className="text-gray-700 font-medium">AAOCR2529RF2025101</p>
                     </div>
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">Tax Benefits</p>
+                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-2">Tax Benefits</p>
                       <p className="text-gray-700 font-medium">Available under 80G</p>
                     </div>
                   </div>
