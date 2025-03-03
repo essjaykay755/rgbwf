@@ -130,6 +130,21 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#666',
   },
+  noteBox: {
+    marginTop: 20,
+    marginBottom: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderStyle: 'solid',
+    borderRadius: 4,
+    backgroundColor: '#f9f9f9',
+  },
+  noteText: {
+    fontSize: 8,
+    color: '#444',
+    marginBottom: 5,
+  },
 })
 
 interface InvoiceData {
@@ -249,6 +264,15 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
 
         <View style={styles.total}>
           <Text style={styles.bold}>Total Amount: ₹{data.amount ? data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '0.00'}</Text>
+        </View>
+
+        <View style={styles.noteBox}>
+          <Text style={styles.noteText}>
+            Note: Please provide photocopy of your AADHAAR & PAN to file Form 10BD and to issue Donation Certificate (Form 10BE).
+          </Text>
+          <Text style={styles.noteText}>
+            This is a computer generated receipt, no signature required.
+          </Text>
         </View>
 
         <Text style={styles.footer}>
