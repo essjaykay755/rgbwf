@@ -54,15 +54,15 @@ export default function Hero() {
             quality={90}
             className="object-cover"
             style={{ 
-              objectPosition: 'center center',
+              objectPosition: '75% center', // Adjusted to show smiling kid better
             }}
             placeholder="blur"
             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy0vLi44QjxAOEA4Qi5AOTc5PkVFPkdEREdHREdHR0f/2wBDAR"
           />
           
-          {/* Gradient Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent md:from-black/60 md:via-black/40 md:to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent" />
+          {/* Gradient Overlays - Adjusted for better visibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
         </div>
         
         {/* Decorative Elements */}
@@ -77,14 +77,14 @@ export default function Hero() {
             initial={{ opacity: 0, x: -20 }} 
             animate={{ opacity: 1, x: 0 }} 
             transition={{ duration: 0.8 }}
-            className="text-white max-w-xl mx-auto lg:mx-0 text-center lg:text-left order-2 lg:order-1"
+            className="text-white max-w-xl mx-auto lg:mx-0 text-center lg:text-left"
           >
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full mb-8"
+              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-8"
             >
               <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
               <span className="text-sm font-medium">Transforming Lives Since 2023</span>
@@ -104,7 +104,7 @@ export default function Hero() {
                   Lasting Impact
                 </span>
               </h1>
-              <p className="text-xl text-gray-200 max-w-lg mx-auto lg:mx-0">
+              <p className="text-xl text-gray-200 max-w-lg mx-auto lg:mx-0 backdrop-blur-sm bg-black/10 p-4 rounded-xl">
                 Empowering communities through education, healthcare, and sustainable development initiatives across India.
               </p>
             </motion.div>
@@ -118,7 +118,7 @@ export default function Hero() {
             >
               <Link
                 href="/donate"
-                className="bg-primary text-white px-8 py-4 rounded-xl text-lg font-medium hover:bg-primary/90 transition-all transform hover:scale-105 hover:shadow-lg inline-flex items-center justify-center group shadow-md focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:outline-none"
+                className="bg-primary text-white px-8 py-4 rounded-xl text-lg font-medium hover:bg-primary/90 transition-all transform hover:scale-105 hover:shadow-lg inline-flex items-center justify-center group shadow-md focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:outline-none backdrop-blur-sm"
                 style={{ backgroundColor: 'rgb(22, 163, 74)' }}
               >
                 Make a Difference
@@ -137,7 +137,7 @@ export default function Hero() {
               </Link>
               <Link
                 href="/campaigns"
-                className="bg-white/10 text-white border border-white/20 px-8 py-4 rounded-xl text-lg font-medium hover:bg-white/20 transition-all transform hover:scale-105 inline-flex items-center justify-center"
+                className="bg-white/10 backdrop-blur-sm text-white border border-white/20 px-8 py-4 rounded-xl text-lg font-medium hover:bg-white/20 transition-all transform hover:scale-105 inline-flex items-center justify-center"
               >
                 Explore Our Work
               </Link>
@@ -160,7 +160,7 @@ export default function Hero() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="hidden lg:block"
+            className="hidden lg:block backdrop-blur-sm bg-black/5 rounded-3xl p-6"
           >
             <div className="grid grid-cols-2 gap-6">
               <StatsCard
