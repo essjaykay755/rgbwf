@@ -8,7 +8,7 @@ Font.register({
 
 const styles = StyleSheet.create({
   page: {
-    padding: 15,
+    padding: 20,
     fontFamily: 'Noto Sans',
     backgroundColor: '#ffffff',
     position: 'relative',
@@ -25,57 +25,57 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 15,
+    marginBottom: 10,
   },
   logoSection: {
     width: '50%',
   },
   logo: {
-    width: 80,
-    height: 80,
+    width: 70,
+    height: 70,
     objectFit: 'contain',
-    marginBottom: 5,
+    marginBottom: 3,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   orgDetails: {
-    marginBottom: 10,
+    marginBottom: 8,
     fontSize: 9,
     flexDirection: 'row',
     alignItems: 'center',
   },
   orgDetailsText: {
-    marginLeft: 10,
+    marginLeft: 8,
     flex: 1,
   },
   orgLogo: {
-    width: 40,
+    width: 35,
     objectFit: 'contain',
   },
   orgName: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
     marginBottom: 2,
   },
   text: {
     fontSize: 9,
-    marginBottom: 2,
+    marginBottom: 1,
   },
   invoiceDetails: {
-    marginBottom: 10,
+    marginBottom: 8,
   },
   table: {
     flexDirection: 'column',
-    marginTop: 10,
+    marginTop: 8,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     borderBottomStyle: 'solid',
-    paddingVertical: 3,
+    paddingVertical: 2,
   },
   tableHeader: {
     backgroundColor: '#f0f0f0',
@@ -93,11 +93,11 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   total: {
-    marginTop: 10,
+    marginTop: 8,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     paddingRight: 5,
-    marginBottom: 20,
+    marginBottom: 15,
   },
   bold: {
     fontWeight: 'bold',
@@ -117,23 +117,27 @@ const styles = StyleSheet.create({
     width: '40%',
   },
   orgNameHeader: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 4,
   },
   footer: {
     position: 'absolute',
     bottom: 15,
-    left: 0,
-    right: 0,
+    left: 15,
+    right: 15,
     textAlign: 'center',
     fontSize: 8,
     color: '#666',
+    paddingTop: 5,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    borderTopStyle: 'solid',
   },
   noteBox: {
-    marginTop: 20,
-    marginBottom: 10,
-    padding: 10,
+    marginTop: 15,
+    marginBottom: 8,
+    padding: 8,
     borderWidth: 1,
     borderColor: '#ddd',
     borderStyle: 'solid',
@@ -143,7 +147,7 @@ const styles = StyleSheet.create({
   noteText: {
     fontSize: 8,
     color: '#444',
-    marginBottom: 5,
+    marginBottom: 3,
   },
 })
 
@@ -191,10 +195,10 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
 
   return (
     <Document {...props}>
-      <Page size="A5" orientation="landscape" style={styles.page}>
+      <Page size="A4" orientation="landscape" style={styles.page}>
         {/* Background logo with low opacity - centered on the page */}
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
-          {showBackgroundLogo && <Image src={logoPath} style={{ width: 250, opacity: 0.03 }} />}
+          {showBackgroundLogo && <Image src={logoPath} style={{ width: 220, opacity: 0.03 }} />}
         </View>
         
         <View style={styles.header}>
@@ -268,10 +272,7 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
 
         <View style={styles.noteBox}>
           <Text style={styles.noteText}>
-            Note: Please provide photocopy of your AADHAAR & PAN to file Form 10BD and to issue Donation Certificate (Form 10BE).
-          </Text>
-          <Text style={styles.noteText}>
-            This is a computer generated receipt, no signature required.
+            Note: Please provide photocopy of your AADHAAR & PAN to file Form 10BD and to issue Donation Certificate (Form 10BE). This is a computer generated receipt, no signature required.
           </Text>
         </View>
 

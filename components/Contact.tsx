@@ -101,7 +101,7 @@ export default function Contact() {
     {
       icon: <Phone className="w-6 h-6" />,
       title: "Call Us",
-      details: ["090730 13343"]
+      details: ["9163197045"]
     },
     {
       icon: <Mail className="w-6 h-6" />,
