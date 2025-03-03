@@ -8,7 +8,7 @@ Font.register({
 
 const styles = StyleSheet.create({
   page: {
-    padding: 20,
+    padding: 30,
     fontFamily: 'Noto Sans',
     backgroundColor: '#ffffff',
     position: 'relative',
@@ -25,57 +25,57 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   logoSection: {
     width: '50%',
   },
   logo: {
-    width: 70,
-    height: 70,
+    width: 80,
+    height: 80,
     objectFit: 'contain',
-    marginBottom: 3,
+    marginBottom: 5,
   },
   title: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
   },
   orgDetails: {
-    marginBottom: 8,
-    fontSize: 9,
+    marginBottom: 10,
+    fontSize: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
   orgDetailsText: {
-    marginLeft: 8,
+    marginLeft: 10,
     flex: 1,
   },
   orgLogo: {
-    width: 35,
+    width: 40,
     objectFit: 'contain',
   },
   orgName: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: 'bold',
-    marginBottom: 2,
+    marginBottom: 3,
   },
   text: {
-    fontSize: 9,
-    marginBottom: 1,
+    fontSize: 11,
+    marginBottom: 2,
   },
   invoiceDetails: {
-    marginBottom: 8,
+    marginBottom: 15,
   },
   table: {
     flexDirection: 'column',
-    marginTop: 8,
+    marginTop: 15,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     borderBottomStyle: 'solid',
-    paddingVertical: 2,
+    paddingVertical: 5,
   },
   tableHeader: {
     backgroundColor: '#f0f0f0',
@@ -83,28 +83,34 @@ const styles = StyleSheet.create({
   },
   tableCol: {
     flex: 1,
-    paddingHorizontal: 5,
-    fontSize: 9,
+    paddingHorizontal: 8,
+    fontSize: 11,
   },
   tableColAmount: {
     flex: 1,
-    paddingHorizontal: 5,
-    fontSize: 9,
+    paddingHorizontal: 8,
+    fontSize: 11,
     textAlign: 'right',
   },
   total: {
-    marginTop: 8,
+    marginTop: 15,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    paddingRight: 5,
-    marginBottom: 15,
+    paddingRight: 8,
+    marginBottom: 20,
   },
   bold: {
     fontWeight: 'bold',
+    fontSize: 13,
+  },
+  totalAmount: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#000',
   },
   contactInfo: {
-    fontSize: 8,
-    lineHeight: 1.2,
+    fontSize: 10,
+    lineHeight: 1.4,
   },
   mainContent: {
     flexDirection: 'row',
@@ -117,27 +123,27 @@ const styles = StyleSheet.create({
     width: '40%',
   },
   orgNameHeader: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   footer: {
     position: 'absolute',
-    bottom: 15,
-    left: 15,
-    right: 15,
+    bottom: 20,
+    left: 30,
+    right: 30,
     textAlign: 'center',
-    fontSize: 8,
+    fontSize: 9,
     color: '#666',
-    paddingTop: 5,
+    paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: '#eee',
     borderTopStyle: 'solid',
   },
   noteBox: {
-    marginTop: 15,
-    marginBottom: 8,
-    padding: 8,
+    marginTop: 20,
+    marginBottom: 15,
+    padding: 12,
     borderWidth: 1,
     borderColor: '#ddd',
     borderStyle: 'solid',
@@ -145,9 +151,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
   },
   noteText: {
-    fontSize: 8,
+    fontSize: 10,
     color: '#444',
-    marginBottom: 3,
+    lineHeight: 1.4,
   },
 })
 
@@ -198,7 +204,7 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
       <Page size="A4" orientation="landscape" style={styles.page}>
         {/* Background logo with low opacity - centered on the page */}
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
-          {showBackgroundLogo && <Image src={logoPath} style={{ width: 220, opacity: 0.03 }} />}
+          {showBackgroundLogo && <Image src={logoPath} style={{ width: 280, opacity: 0.03 }} />}
         </View>
         
         <View style={styles.header}>
@@ -267,12 +273,15 @@ export const InvoicePDF = ({ data, ...props }: InvoicePDFProps) => {
         </View>
 
         <View style={styles.total}>
-          <Text style={styles.bold}>Total Amount: ₹{data.amount ? data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '0.00'}</Text>
+          <Text style={styles.totalAmount}>Total Amount: ₹{data.amount ? data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '0.00'}</Text>
         </View>
 
         <View style={styles.noteBox}>
           <Text style={styles.noteText}>
-            Note: Please provide photocopy of your AADHAAR & PAN to file Form 10BD and to issue Donation Certificate (Form 10BE). This is a computer generated receipt, no signature required.
+            Note: Please provide photocopy of your AADHAAR & PAN to file Form 10BD and to issue Donation Certificate (Form 10BE).
+          </Text>
+          <Text style={styles.noteText}>
+            This is a computer generated receipt, no signature required.
           </Text>
         </View>
 

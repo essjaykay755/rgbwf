@@ -79,94 +79,140 @@ export function DonateComponent() {
 
             {/* Donation Options */}
             <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
-              <div className="flex items-center justify-center gap-4 text-amber-600 mb-6">
-                <AlertCircle className="w-8 h-8" />
-                <h2 className="text-xl font-semibold">Online Donation Coming Soon</h2>
+              <div className="relative mb-10">
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-100/50 to-amber-200/50 rounded-xl transform -skew-y-1"></div>
+                <div className="relative flex flex-col items-center justify-center gap-4 bg-white rounded-xl p-6 border border-amber-200 shadow-sm">
+                  <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mb-2">
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.1, 1]
+                      }}
+                      transition={{ 
+                        repeat: Infinity, 
+                        duration: 2
+                      }}
+                    >
+                      <AlertCircle className="w-8 h-8" />
+                    </motion.div>
+                  </div>
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-amber-700 mb-2">Online Donation Coming Soon</h2>
+                    <p className="text-amber-700/80">
+                      We're working hard to bring you a seamless online donation experience
+                    </p>
+                  </div>
+                </div>
               </div>
-              <p className="text-gray-600 mb-8">
+              
+              <p className="text-gray-600 mb-8 text-center max-w-2xl mx-auto">
                 We are currently working on implementing secure online donation facilities. In the meantime, if you would
-                like to contribute to our cause, please contact us directly through our contact page or reach out via our
+                like to contribute to our cause, please use one of the methods below or reach out via our
                 social media channels.
               </p>
-              <div className="space-y-6">
-                <div className="p-6 bg-gray-50 rounded-xl border border-gray-100">
-                  <h3 className="font-semibold mb-4 text-lg">Contact Information</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <HandHeart className="w-5 h-5 text-primary" />
-                      <p className="text-gray-600">Email: rgbwfoundation@gmail.com</p>
+              
+              {/* Redesigned Information Sections */}
+              <div className="grid md:grid-cols-2 gap-6 mb-8">
+                {/* Contact Information - Redesigned */}
+                <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md group">
+                  <div className="bg-primary/10 p-4 text-center">
+                    <h3 className="font-semibold text-lg text-primary">Contact Information</h3>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">Email</p>
+                      <p className="text-gray-700 font-medium">rgbwfoundation@gmail.com</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <HandHeart className="w-5 h-5 text-primary" />
-                      <p className="text-gray-600">Phone: 91631 97045</p>
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">Phone</p>
+                      <p className="text-gray-700 font-medium">91631 97045</p>
                     </div>
                   </div>
                 </div>
                 
-                {/* Bank Account Details */}
-                <div className="p-6 bg-gray-50 rounded-xl border border-gray-100">
-                  <h3 className="font-semibold mb-4 text-lg">Bank Account Details</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <HandHeart className="w-5 h-5 text-primary" />
-                      <p className="text-gray-600">A/C NAME: RGB WELFARE FOUNDATION</p>
+                {/* Bank Account Details - Redesigned */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md group">
+                  <div className="bg-blue-100 p-4 text-center">
+                    <h3 className="font-semibold text-lg text-blue-700">Bank Account Details</h3>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">Account Name</p>
+                      <p className="text-gray-700 font-medium">RGB WELFARE FOUNDATION</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <HandHeart className="w-5 h-5 text-primary" />
-                      <p className="text-gray-600">A/C NO: 925020008521912</p>
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">Account Number</p>
+                      <p className="text-gray-700 font-medium">925020008521912</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <HandHeart className="w-5 h-5 text-primary" />
-                      <p className="text-gray-600">IFSC: UTIB0000547</p>
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">IFSC Code</p>
+                      <p className="text-gray-700 font-medium">UTIB0000547</p>
                     </div>
                   </div>
                 </div>
+              </div>
                 
-                {/* Registration and Legal Information */}
-                <div className="p-6 bg-gray-50 rounded-xl border border-gray-100">
-                  <h3 className="font-semibold mb-4 text-lg">Registration & Legal Information</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <Shield className="w-5 h-5 text-primary" />
-                      <p className="text-gray-600">Registration No: U88100WB2025NPL275903</p>
+              {/* Registration and Legal Information - Redesigned */}
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-100 overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md mb-8">
+                <div className="bg-amber-100 p-4 text-center">
+                  <h3 className="font-semibold text-lg text-amber-700">Registration & Legal Information</h3>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">Registration No</p>
+                      <p className="text-gray-700 font-medium">U88100WB2025NPL275903</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Shield className="w-5 h-5 text-primary" />
-                      <p className="text-gray-600">License No: 163588</p>
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">License No</p>
+                      <p className="text-gray-700 font-medium">163588</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Shield className="w-5 h-5 text-primary" />
-                      <p className="text-gray-600">NITI Aayog: WB/2025/0503823</p>
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">NITI Aayog</p>
+                      <p className="text-gray-700 font-medium">WB/2025/0503823</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Shield className="w-5 h-5 text-primary" />
-                      <p className="text-gray-600">12A: AAOCR2429RE20241</p>
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">12A</p>
+                      <p className="text-gray-700 font-medium">AAOCR2429RE20241</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Shield className="w-5 h-5 text-primary" />
-                      <p className="text-gray-600">80G: AAOCR2529RF2025101</p>
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">80G</p>
+                      <p className="text-gray-700 font-medium">AAOCR2529RF2025101</p>
+                    </div>
+                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <p className="text-xs text-gray-500 mb-1">Tax Benefits</p>
+                      <p className="text-gray-700 font-medium">Available under 80G</p>
                     </div>
                   </div>
                 </div>
+              </div>
                 
-                <div className="flex justify-center gap-4">
+              {/* Social Media Links - Redesigned */}
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 p-6 mb-8">
+                <h3 className="font-semibold text-lg text-center mb-6">Connect With Us</h3>
+                <div className="flex flex-wrap justify-center gap-4">
                   <a
                     href="https://www.facebook.com/profile.php?id=61571891546414"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl hover:bg-primary/90 transition-all group"
+                    className="flex items-center justify-center gap-3 bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md"
                   >
-                    <span>Facebook</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <span className="font-medium">Facebook</span>
                   </a>
                   <a
                     href="https://www.linkedin.com/in/rgb-welfare-foundation-315696346"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-white text-primary border-2 border-primary px-6 py-3 rounded-xl hover:bg-gray-50 transition-all group"
+                    className="flex items-center justify-center gap-3 bg-blue-700 text-white px-8 py-3 rounded-lg hover:bg-blue-800 transition-all shadow-sm hover:shadow-md"
                   >
-                    <span>LinkedIn</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <span className="font-medium">LinkedIn</span>
+                  </a>
+                  <a
+                    href="https://www.instagram.com/rgbwelfarefoundation"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-sm hover:shadow-md"
+                  >
+                    <span className="font-medium">Instagram</span>
                   </a>
                 </div>
               </div>
