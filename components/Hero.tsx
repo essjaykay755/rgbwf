@@ -1,9 +1,42 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, useInView } from "framer-motion"
 import Link from "next/link"
 import OptimizedImage from "./OptimizedImage"
 import Image from "next/image"
+import { useEffect, useRef, useState } from "react"
+
+function TypewriterNumber({ value, className }: { value: string, className?: string }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true })
+  const [displayValue, setDisplayValue] = useState("")
+
+  useEffect(() => {
+    if (isInView) {
+      let current = ""
+      const numericPart = value.match(/\d+/)?.[0] || ""
+      const suffix = value.replace(numericPart, "")
+      let currentNum = 0
+      const targetNum = parseInt(numericPart)
+      const step = Math.max(1, Math.floor(targetNum / 30)) // Divide animation into ~30 steps
+      
+      const interval = setInterval(() => {
+        if (currentNum < targetNum) {
+          currentNum = Math.min(currentNum + step, targetNum)
+          current = `${currentNum}${suffix}`
+          setDisplayValue(current)
+        } else {
+          clearInterval(interval)
+          setDisplayValue(value)
+        }
+      }, 50)
+
+      return () => clearInterval(interval)
+    }
+  }, [isInView, value])
+
+  return <span ref={ref} className={className}>{displayValue}</span>
+}
 
 export default function Hero() {
   return (
@@ -21,7 +54,7 @@ export default function Hero() {
             quality={90}
             className="object-cover"
             style={{ 
-              objectPosition: '60% center',
+              objectPosition: 'center center',
             }}
             placeholder="blur"
             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy0vLi44QjxAOEA4Qi5AOTc5PkVFPkdEREdHREdHR0f/2wBDAR"
@@ -44,7 +77,7 @@ export default function Hero() {
             initial={{ opacity: 0, x: -20 }} 
             animate={{ opacity: 1, x: 0 }} 
             transition={{ duration: 0.8 }}
-            className="text-white max-w-xl mx-auto lg:mx-0 text-center lg:text-left"
+            className="text-white max-w-xl mx-auto lg:mx-0 text-center lg:text-left order-2 lg:order-1"
           >
             {/* Badge */}
             <motion.div
@@ -188,7 +221,7 @@ function StatsCard({
       whileHover={{ y: -5 }}
       className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10"
     >
-      <h3 className="text-3xl font-bold text-white mb-2">{number}</h3>
+      <TypewriterNumber value={number} className="text-3xl font-bold text-white mb-2 block" />
       <p className="text-lg font-medium text-white mb-1">{label}</p>
       <p className="text-sm text-gray-300">{description}</p>
     </motion.div>
@@ -204,7 +237,7 @@ function MobileStatsCard({
 }) {
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 text-center">
-      <h3 className="text-2xl font-bold text-white mb-1">{number}</h3>
+      <TypewriterNumber value={number} className="text-2xl font-bold text-white mb-1 block" />
       <p className="text-sm font-medium text-gray-200">{label}</p>
     </div>
   )
