@@ -3,8 +3,12 @@
 import { motion } from "framer-motion"
 import { AlertCircle, Heart, Users, School, HandHeart, ArrowRight, Shield, Award, Trophy } from "lucide-react"
 import Image from "next/image"
+import RazorpayPayment from "./RazorpayPayment"
+import { useState } from "react"
 
 export function DonateComponent() {
+  const [amount, setAmount] = useState<number>(0)
+
   const impactMetrics = [
     { number: "5000+", label: "Lives Impacted", icon: <Users className="w-6 h-6" /> },
     { number: "100+", label: "Schools Reached", icon: <School className="w-6 h-6" /> },
@@ -28,6 +32,16 @@ export function DonateComponent() {
       description: "Tax benefits available under 80G certification"
     }
   ]
+
+  const handlePaymentSuccess = (paymentId: string, orderId: string, signature: string) => {
+    // Silently handle the payment success
+    console.log('Payment successful:', { paymentId, orderId, signature });
+  };
+
+  const handlePaymentError = (error: any) => {
+    // Handle error without alert
+    console.error('Payment failed:', error);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
@@ -59,7 +73,7 @@ export function DonateComponent() {
             </p>
 
             {/* Impact Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
               {impactMetrics.map((metric, index) => (
                 <motion.div
                   key={metric.label}
@@ -77,149 +91,138 @@ export function DonateComponent() {
               ))}
             </div>
 
-            {/* Donation Options */}
-            <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
-              <div className="relative mb-10">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-100/50 to-amber-200/50 rounded-xl transform -skew-y-1"></div>
-                <div className="relative flex flex-col items-center justify-center gap-4 bg-white rounded-xl p-6 border border-amber-200 shadow-sm">
-                  <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mb-2">
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.1, 1]
-                      }}
-                      transition={{ 
-                        repeat: Infinity, 
-                        duration: 2
-                      }}
-                    >
-                      <AlertCircle className="w-8 h-8" />
-                    </motion.div>
-                  </div>
-                  <div className="text-center">
-                    <h2 className="text-2xl font-bold text-amber-700 mb-2">Online Donation Coming Soon</h2>
-                    <p className="text-amber-700/80">
-                      We're working hard to bring you a seamless online donation experience
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <p className="text-gray-600 mb-8 text-center max-w-2xl mx-auto">
-                We are currently working on implementing secure online donation facilities. In the meantime, if you would
-                like to contribute to our cause, please use one of the methods below or reach out via our
-                social media channels.
-              </p>
-              
-              {/* Redesigned Information Sections */}
-              <div className="grid md:grid-cols-2 gap-6 mb-8">
-                {/* Contact Information - Redesigned */}
-                <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md group">
-                  <div className="bg-primary/10 p-4 text-center">
-                    <h3 className="font-semibold text-lg text-primary">Contact Information</h3>
-                  </div>
-                  <div className="p-6 space-y-4">
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">Email</p>
-                      <p className="text-gray-700 font-medium">rgbwfoundation@gmail.com</p>
-                    </div>
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">Phone</p>
-                      <p className="text-gray-700 font-medium">91631 97045</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Bank Account Details - Redesigned */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md group">
-                  <div className="bg-blue-100 p-4 text-center">
-                    <h3 className="font-semibold text-lg text-blue-700">Bank Account Details</h3>
-                  </div>
-                  <div className="p-6 space-y-4">
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">Account Name</p>
-                      <p className="text-gray-700 font-medium">RGB WELFARE FOUNDATION</p>
-                    </div>
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">Account Number</p>
-                      <p className="text-gray-700 font-medium">925020008521912</p>
-                    </div>
-                    <div className="text-center p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-1">IFSC Code</p>
-                      <p className="text-gray-700 font-medium">UTIB0000547</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-                
-              {/* Registration and Legal Information - Redesigned */}
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-100 overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md mb-8">
-                <div className="bg-amber-100 p-4 text-center">
-                  <h3 className="font-semibold text-lg text-amber-700">Registration & Legal Information</h3>
-                </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-2">Registration No</p>
-                      <p className="text-gray-700 font-medium break-all">U88100WB2025NPL275903</p>
-                    </div>
-                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-2">License No</p>
-                      <p className="text-gray-700 font-medium">163588</p>
-                    </div>
-                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-2">NITI Aayog</p>
-                      <p className="text-gray-700 font-medium">WB/2025/0503823</p>
-                    </div>
-                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-2">12A</p>
-                      <p className="text-gray-700 font-medium">AAOCR2429RE20241</p>
-                    </div>
-                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-2">80G</p>
-                      <p className="text-gray-700 font-medium">AAOCR2529RF2025101</p>
-                    </div>
-                    <div className="text-center p-4 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                      <p className="text-xs text-gray-500 mb-2">Tax Benefits</p>
-                      <p className="text-gray-700 font-medium">Available under 80G</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-                
-              {/* Social Media Links - Redesigned */}
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 p-6 mb-8">
-                <h3 className="font-semibold text-lg text-center mb-6">Connect With Us</h3>
-                <div className="flex flex-wrap justify-center gap-4">
-                  <a
-                    href="https://www.facebook.com/profile.php?id=61571891546414"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md"
+            {/* Donation Form */}
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 mb-16">
+              <h2 className="text-2xl font-bold mb-6">Choose Donation Amount</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                {[500, 1000, 2000, 5000].map((value) => (
+                  <button
+                    key={value}
+                    onClick={() => setAmount(value)}
+                    className={`p-4 rounded-lg border ${
+                      amount === value
+                        ? 'border-primary bg-primary/5 text-primary'
+                        : 'border-gray-200 hover:border-primary/50'
+                    } transition-all duration-300`}
                   >
-                    <span className="font-medium">Facebook</span>
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/in/rgb-welfare-foundation-315696346"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 bg-blue-700 text-white px-8 py-3 rounded-lg hover:bg-blue-800 transition-all shadow-sm hover:shadow-md"
-                  >
-                    <span className="font-medium">LinkedIn</span>
-                  </a>
-                  <a
-                    href="https://www.instagram.com/rgbwelfarefoundation"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-sm hover:shadow-md"
-                  >
-                    <span className="font-medium">Instagram</span>
-                  </a>
+                    ₹{value}
+                  </button>
+                ))}
+              </div>
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Custom Amount
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-lg">₹</span>
+                  <input
+                    type="number"
+                    min="1"
+                    value={amount || ''}
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                    className="w-full rounded-lg border border-gray-200 p-3 pl-8 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    placeholder="Enter amount"
+                  />
                 </div>
               </div>
+
+              {amount > 0 && (
+                <RazorpayPayment
+                  amount={amount}
+                  onSuccess={handlePaymentSuccess}
+                  onError={handlePaymentError}
+                />
+              )}
             </div>
 
+            {/* Additional Information Sections */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-24">
+              {/* Contact Information */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-green-50/50 rounded-xl p-6 border border-green-100"
+              >
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="text-base font-medium text-gray-900">rgbwfoundation@gmail.com</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Phone</p>
+                    <p className="text-base font-medium text-gray-900">91631 97045</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Bank Account Details */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-blue-50/50 rounded-xl p-6 border border-blue-100"
+              >
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Bank Account Details</h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Account Name</p>
+                    <p className="text-base font-medium text-gray-900">RGB WELFARE FOUNDATION</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Account Number</p>
+                    <p className="text-base font-medium text-gray-900">925020008521912</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">IFSC Code</p>
+                    <p className="text-base font-medium text-gray-900">UTIB0000547</p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Registration & Legal Information */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mt-12 bg-yellow-50/50 rounded-xl p-6 border border-yellow-100"
+            >
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Registration & Legal Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Registration No</p>
+                    <p className="text-base font-medium text-gray-900">U88100WB2025NPL275903</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">NITI Aayog</p>
+                    <p className="text-base font-medium text-gray-900">WB/2025/0503823</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">80G</p>
+                    <p className="text-base font-medium text-gray-900">AAOCR2529RE2025101</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-500">License No</p>
+                    <p className="text-base font-medium text-gray-900">163588</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">12A</p>
+                    <p className="text-base font-medium text-gray-900">AAOCR2429RE20241</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Tax Benefits</p>
+                    <p className="text-base font-medium text-gray-900">Available under 80G</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
             {/* Trust Indicators */}
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 mb-12">
               {trustIndicators.map((indicator, index) => (
                 <motion.div
                   key={indicator.title}
