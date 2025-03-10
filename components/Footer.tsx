@@ -229,56 +229,84 @@ export default function Footer() {
               <div className="absolute -left-4 top-0 w-1 h-8 bg-white/20 rounded-full" />
               <h3 className="text-xl font-bold mb-6">Contact Us</h3>
 
-              {/* Mini Map */}
-              <div className="mb-6 rounded-xl overflow-hidden shadow-lg bg-white/10">
-                <iframe 
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3680.7556002694337!2d88.46505619999999!3d22.700140299999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa9e089a85dcfc651%3A0x2ec090c30219c4be!2sRGB%20Welfare%20Foundation!5e0!3m2!1sen!2sin!4v1739045182880!5m2!1sen!2sin" 
-                  width="100%" 
-                  height="200" 
-                  style={{ border: 0 }} 
-                  allowFullScreen 
-                  loading="lazy" 
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
-                  title="RGB Welfare Foundation office location on Google Maps"
-                />
-              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  {/* Mini Map */}
+                  <div className="mb-6 rounded-xl overflow-hidden shadow-lg bg-white/10">
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3680.7556002694337!2d88.46505619999999!3d22.700140299999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa9e089a85dcfc651%3A0x2ec090c30219c4be!2sRGB%20Welfare%20Foundation!5e0!3m2!1sen!2sin!4v1739045182880!5m2!1sen!2sin" 
+                      width="100%" 
+                      height="200" 
+                      style={{ border: 0 }} 
+                      allowFullScreen 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade"
+                      className="grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                      title="RGB Welfare Foundation office location on Google Maps"
+                    />
+                  </div>
 
-              <ul className="space-y-4">
-                <motion.li 
-                  className="flex items-start gap-4 group p-4 rounded-xl hover:bg-white/5 transition-colors"
-                  whileHover={{ x: 5 }}
-                >
-                  <div className="p-2 bg-white/10 rounded-lg group-hover:bg-white/20 transition-colors">
-                    <MapPin className="w-5 h-5" />
+                  <ul className="space-y-4">
+                    <motion.li 
+                      className="flex items-start gap-4 group p-4 rounded-xl hover:bg-white/5 transition-colors"
+                      whileHover={{ x: 5 }}
+                    >
+                      <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                        <MapPin className="h-5 w-5 text-white/80" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Our Address</h4>
+                        <p className="text-white/70 text-sm">
+                          P-348, Basunagar Gate No 1, Madhyamgram, Kolkata 700129, India
+                        </p>
+                      </div>
+                    </motion.li>
+                  </ul>
+                </div>
+                
+                <div>
+                  {/* QR Code */}
+                  <div className="mb-6 p-4 bg-white/10 rounded-xl shadow-lg backdrop-blur-sm">
+                    <h4 className="font-medium mb-3 text-center">Scan to Connect</h4>
+                    <div className="flex justify-center mb-2">
+                      <img 
+                        src="/qr.png" 
+                        alt="Contact QR Code" 
+                        className="w-40 h-40 object-contain bg-white/90 p-2 rounded-lg"
+                      />
+                    </div>
+                    <p className="text-white/70 text-sm text-center">Scan this QR code to contact us directly</p>
                   </div>
-                  <span className="text-white/90 group-hover:text-white transition-colors">
-                    P-348, Basunagar Gate No 1, Madhyamgram, Kolkata 700129, India
-                  </span>
-                </motion.li>
-                <motion.li 
-                  className="flex items-center gap-4 group p-4 rounded-xl hover:bg-white/5 transition-colors"
-                  whileHover={{ x: 5 }}
-                >
-                  <div className="p-2 bg-white/10 rounded-lg group-hover:bg-white/20 transition-colors">
-                    <Phone className="w-5 h-5" />
+                  
+                  <div className="space-y-4">
+                    <motion.div 
+                      className="flex items-center gap-4 group p-4 rounded-xl hover:bg-white/5 transition-colors"
+                      whileHover={{ x: 5 }}
+                    >
+                      <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                        <Phone className="h-5 w-5 text-white/80" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Phone</h4>
+                        <p className="text-white/70">9163197045</p>
+                      </div>
+                    </motion.div>
+                    
+                    <motion.div 
+                      className="flex items-center gap-4 group p-4 rounded-xl hover:bg-white/5 transition-colors"
+                      whileHover={{ x: 5 }}
+                    >
+                      <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                        <Mail className="h-5 w-5 text-white/80" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Email</h4>
+                        <p className="text-white/70">rgbwfoundation@gmail.com</p>
+                      </div>
+                    </motion.div>
                   </div>
-                  <span className="text-white/90 group-hover:text-white transition-colors">
-                    090730 13343
-                  </span>
-                </motion.li>
-                <motion.li 
-                  className="flex items-center gap-4 group p-4 rounded-xl hover:bg-white/5 transition-colors"
-                  whileHover={{ x: 5 }}
-                >
-                  <div className="p-2 bg-white/10 rounded-lg group-hover:bg-white/20 transition-colors">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <span className="text-white/90 group-hover:text-white transition-colors">
-                    rgbwfoundation@gmail.com
-                  </span>
-                </motion.li>
-              </ul>
+                </div>
+              </div>
             </motion.div>
           </div>
 

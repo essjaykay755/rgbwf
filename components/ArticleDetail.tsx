@@ -159,17 +159,31 @@ export default function ArticleDetail({ slug }: ArticleDetailProps) {
               ))}
             </div>
             
-            <div className="bg-primary/5 border border-primary/10 rounded-xl p-6 text-center">
-              <h3 className="text-xl font-bold mb-3">Visit our website and apply for volunteer service</h3>
-              <p className="mb-4">Join us in making a difference in our communities</p>
-              <a 
-                href="https://www.rgbwf.org" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="inline-block bg-primary text-white px-6 py-2.5 rounded-full hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 active:scale-95"
-              >
-                www.rgbwf.org
-              </a>
+            <div className="bg-primary/5 border border-primary/10 rounded-xl p-6">
+              <div className="flex flex-col md:flex-row gap-6 items-center">
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-xl font-bold mb-3">Visit our website and apply for volunteer service</h3>
+                  <p className="mb-4">Join us in making a difference in our communities</p>
+                  <a 
+                    href="https://www.rgbwf.org" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-block bg-primary text-white px-6 py-2.5 rounded-full hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 active:scale-95"
+                  >
+                    www.rgbwf.org
+                  </a>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="p-2 bg-white rounded-lg">
+                    <img 
+                      src="/qr.png" 
+                      alt="Contact QR Code" 
+                      className="w-32 h-32 object-contain"
+                    />
+                  </div>
+                  <p className="text-center text-sm mt-2 text-gray-600">Scan to connect</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

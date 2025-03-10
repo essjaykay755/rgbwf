@@ -191,31 +191,45 @@ export default function Contact() {
               </motion.div>
 
               {/* Social Links */}
-              <div className="flex gap-4">
-                <a
-                  href="https://www.facebook.com/profile.php?id=61571891546414"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-primary/20 transition-colors group"
-                >
-                  <Facebook className="w-6 h-6 text-gray-600 group-hover:text-primary transition-colors" />
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/rgb-welfare-foundation-315696346"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-primary/20 transition-colors group"
-                >
-                  <Linkedin className="w-6 h-6 text-gray-600 group-hover:text-primary transition-colors" />
-                </a>
-                <a
-                  href="https://www.instagram.com/rgbwelfarefoundation"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-primary/20 transition-colors group"
-                >
-                  <Instagram className="w-6 h-6 text-gray-600 group-hover:text-primary transition-colors" />
-                </a>
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-4">
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61571891546414"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-primary/20 transition-colors group"
+                  >
+                    <Facebook className="w-6 h-6 text-gray-600 group-hover:text-primary transition-colors" />
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/rgb-welfare-foundation-315696346"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-primary/20 transition-colors group"
+                  >
+                    <Linkedin className="w-6 h-6 text-gray-600 group-hover:text-primary transition-colors" />
+                  </a>
+                  <a
+                    href="https://www.instagram.com/rgbwelfarefoundation"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-primary/20 transition-colors group"
+                  >
+                    <Instagram className="w-6 h-6 text-gray-600 group-hover:text-primary transition-colors" />
+                  </a>
+                </div>
+                
+                {/* QR Code */}
+                <div className="mt-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                  <h3 className="font-semibold mb-3 text-center">Scan to Contact Us</h3>
+                  <div className="flex justify-center">
+                    <img 
+                      src="/qr.png" 
+                      alt="Contact QR Code" 
+                      className="w-48 h-48 object-contain"
+                    />
+                  </div>
+                </div>
               </div>
             </motion.div>
 
