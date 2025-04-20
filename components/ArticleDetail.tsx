@@ -31,7 +31,7 @@ export default function ArticleDetail({ slug }: ArticleDetailProps) {
   const articlesData = {
     "womens-day-2024": {
       title: "Women's Day 2024 Special Event",
-      date: "March 8, 2024",
+      date: "March 8, 2025",
       location: "Bidhannagar, Kolkata",
       coverImage: "/articles/WhatsApp Image 2025-03-08 at 13.52.12_5e19bcca.jpg",
       content: `
@@ -67,7 +67,7 @@ export default function ArticleDetail({ slug }: ArticleDetailProps) {
       <div className="container mx-auto px-4 py-24 text-center">
         <h1 className="text-3xl font-bold mb-6">Article not found</h1>
         <Link href="/articles" className="text-primary hover:underline">
-          Back to Articles
+          Back to News
         </Link>
       </div>
     )
@@ -92,7 +92,7 @@ export default function ArticleDetail({ slug }: ArticleDetailProps) {
                 className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 group"
               >
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                <span>Back to Articles</span>
+                <span>Back to News</span>
               </Link>
               
               <h1 className="text-3xl md:text-5xl font-bold mb-4">{article.title}</h1>

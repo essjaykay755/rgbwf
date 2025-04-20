@@ -8,6 +8,19 @@ import OptimizedImage from "./OptimizedImage"
 export default function Campaigns() {
   const campaigns = [
     {
+      image: "/articles/WhatsApp Image 2025-03-08 at 13.52.12_5e19bcca.jpg",
+      title: "Women's Day 2025 Special Event",
+      description:
+        "Women's Day is not just a one-day celebration for us. It is a day to raise awareness about women's self-reliance, health, education, and self-respect. This day is not about competition with men but rather about walking together with assurance.",
+      location: "Bidhannagar, Kolkata",
+      status: "Active",
+      slug: "womens-day-2025",
+      metrics: {
+        focus: "Gender Equality",
+        participation: "Community"
+      }
+    },
+    {
       image: "/campaign6/campaign1.jpg",
       title: "Rural to Global Bridge",
       description:

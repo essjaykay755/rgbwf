@@ -1,5 +1,5 @@
 import Articles from "@/components/Articles"
 
-export default function ArticlesPage() {
+export default function NewsPage() {
   return <Articles />
 } 
